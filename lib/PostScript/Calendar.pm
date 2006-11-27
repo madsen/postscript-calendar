@@ -23,13 +23,15 @@ use warnings;
 use strict;
 use Carp;
 use Date::Calc qw(Add_Delta_YM Day_of_Week Day_of_Week_to_Text
-                  Days_in_Month Month_to_Text);
+                  Days_in_Month Localtime Mktime Month_to_Text);
 use Font::AFM;
 
 #=====================================================================
 # Package Global Variables:
 
 our $VERSION = '0.01';
+
+our @phaseName = qw(NewMoon FirstQuarter FullMoon LastQuarter);
 
 #---------------------------------------------------------------------
 # Tied hashes for interpolating function calls into strings:
@@ -71,6 +73,13 @@ sub Add_Delta_M
 }
 
 #=====================================================================
+# Constants:
+#---------------------------------------------------------------------
+
+sub evTxt () { 0 }
+sub evPS  () { 1 }
+
+#=====================================================================
 # Package PostScript::Calendar:
 
 sub new
@@ -84,6 +93,7 @@ sub new
     border    => $p{border},
     dayHeight => $p{day_height},
     mini      => $p{mini_calendars},
+    phases    => $p{phases},
     title     => ($p{title} || sprintf '%s %d', Month_to_Text($month), $year),
     days      => ($p{days} || [ 0 .. 6 ]), # Sun .. Sat
     year      => $year,
@@ -116,6 +126,23 @@ sub new
 
   $self;
 } # end new
+
+#---------------------------------------------------------------------
+sub calc_moon_phases
+{
+  my ($self, $year, $month) = @_;
+
+  require Astro::MoonPhase;
+  Astro::MoonPhase->VERSION(0.60); # Need phaselist
+
+  my ($phase, @dates) = Astro::MoonPhase::phaselist(
+    Mktime($year, $month, 1, 0,0,0),
+    Mktime(Add_Delta_M($year, $month, 1), 1, 0,0,0)
+  );
+
+  # Convert Unix times to day-of-month:
+  ($phase, map { (Localtime $_)[2] } @dates);
+} # end calc_moon_phases
 
 #---------------------------------------------------------------------
 sub compute_grid
@@ -236,12 +263,32 @@ sub add_mini_calendar
 } # end add_mini_calendar
 
 #---------------------------------------------------------------------
+sub add_events
+{
+  my ($self, $events, $x, $y, $width, $height, $special) = @_;
+
+  my $ps = $self->{psFile};
+
+  if ($events->[evPS]) {
+    $ps->add_to_page("gsave\n$x $y translate\n");
+
+    $ps->add_to_page("1 dict begin\n/DayHeight $height def\n")
+        if $special;
+
+    $ps->add_to_page(join "\n", @{ $events->[evPS] }, '');
+
+    $ps->add_to_page("end\n") if $special;
+    $ps->add_to_page("grestore\n");
+  }
+} # end add_events
+
+#---------------------------------------------------------------------
 sub generate
 {
   my $self = $_[0];
 
-  my ($ps, $days, $year, $month, $topMar, $botMar, $sideMar, $mini)
-      = @$self{qw(psFile days year month topMar botMar sideMar mini)};
+  my ($ps, $days, $events, $year, $month, $topMar, $botMar, $sideMar, $mini)
+      = @$self{qw(psFile days events year month topMar botMar sideMar mini)};
 
   my ($width, $height, $landscape) =
       ($ps->get_width, $ps->get_height, $ps->get_landscape);
@@ -298,6 +345,12 @@ sub generate
   my $gridBottom = $dayTop - $dayHeight * @$grid;
   my $gridHeight = $dayTop - $gridBottom + $dayLabelSize + $labelMar;
   my $gridTop    = $gridBottom + $gridHeight;
+
+  $ps->add_to_page(<<"END_PAGE_INIT");
+0 setlinecap
+0 setlinejoin
+2 pixel setlinewidth
+END_PAGE_INIT
 
   unless ($ps->has_function('PostScript_Calendar'))
   { $ps->add_function('PostScript_Calendar', <<"END_FUNCTIONS") }
@@ -394,6 +447,59 @@ sub generate
 } bind def
 END_FUNCTIONS
 
+  if ($self->{phases}) {
+    my ($phase, @dates) = $self->calc_moon_phases($year, $month);
+    while (@dates) {
+      push(@{$events->[shift @dates][evPS]},
+           "/$phaseName[$phase] ShowPhase");
+      $phase = ($phase + 1) % 4;
+    } # end while @dates
+
+    unless ($ps->has_function('PostScript_Calendar_Moon'))
+  { $ps->add_function('PostScript_Calendar_Moon', <<"END_MOON_FUNCTIONS") }
+/MoonBorder 6 def
+
+%---------------------------------------------------------------------
+/ShowPhase
+{
+  newpath
+  MoonBorder DateSize 2 div add
+  DayHeight MoonBorder sub
+  DateSize 2 div sub
+  DateSize 2 div 0 360 arc
+  closepath
+  cvx exec
+} def
+
+/NewMoon { fill } bind def
+/FullMoon { gsave 1 setgray fill grestore stroke } bind def
+
+/FirstQuarter
+{
+  FullMoon
+  newpath
+  MoonBorder DateSize 2 div add
+  DayHeight MoonBorder sub DateSize 2 div sub
+  DateSize 2 div
+  90 270 arc
+  closepath fill
+} def
+
+/LastQuarter
+{
+  FullMoon
+  newpath
+  MoonBorder DateSize 2 div add
+  DayHeight MoonBorder sub DateSize 2 div sub
+  DateSize 2 div
+  270 90 arc
+  closepath fill
+} def
+END_MOON_FUNCTIONS
+  } # end if showing phases of the moon
+
+  my $splitHeight = $dayHeight/2;
+
   my $y = $dayTop;
   foreach my $row (@$grid) {
     $y -= $dayHeight;
@@ -405,16 +511,21 @@ END_FUNCTIONS
 
       if (ref $day) {
         if ($day->[0] eq 'split') {
-          my $lineY = $y + $dayHeight/2;
+          my $lineY = $y + $splitHeight;
+          $self->add_events($events->[$day->[1]], $x, $lineY,
+                            $dayWidth, $splitHeight, 1) if $events->[$day->[1]];
+          $self->add_events($events->[$day->[2]], $x, $y,
+                            $dayWidth, $splitHeight, 1) if $events->[$day->[2]];
+
           $ps->add_to_page(<<"END_SPLIT_LINE");
-0 setlinecap
-2 pixel setlinewidth
 $dayWidth $x $lineY hline
 END_SPLIT_LINE
         } elsif ($day->[0] eq 'calendar') {
           $self->add_mini_calendar(@$day[1,2], $x, $y, $dayWidth, $dayHeight);
         }
       } else {
+        $self->add_events($events->[$day], $x, $y, $dayWidth, $dayHeight)
+            if $events->[$day];
       }
     } # end foreach $day
   } # end foreach $row
@@ -439,8 +550,6 @@ END_SPLIT_LINE
   );
 
   $ps->add_to_page(<<"END_HOR_LINES");
-0 setlinecap
-2 pixel setlinewidth
 $E{$gridBottom + $dayHeight} $dayHeight $dayTop\ {
   $gridWidth $leftEdge 3 -1 roll hline
 } for
@@ -454,7 +563,6 @@ END_VERT_LINES
 
   if ($self->{border}) {
     $ps->add_to_page(<<"END_BORDER");
-0 setlinejoin
 newpath
 $leftEdge $gridTop moveto
 $gridWidth 0 rlineto
