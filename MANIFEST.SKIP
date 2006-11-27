@@ -13,7 +13,7 @@
 ^blib/
 ^cjm_
 ^pm_to_blib$
-^Texinfo-\d
+^PostScript-\d
 ^_build\b
 ^Build$
 ^t/testing/

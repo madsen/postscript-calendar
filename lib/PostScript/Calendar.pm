@@ -25,25 +25,26 @@ use Carp;
 use Date::Calc qw(Day_of_Week_to_Text Days_in_Month Day_of_Week Month_to_Text);
 
 #=====================================================================
-# Package PostScript::Calendar::Interpolation:
-
-{
-  package PostScript::Calendar::Interpolation;
-
-  sub TIEHASH { bless $_[1], $_[0] }
-  sub FETCH   { $_[0]->($_[1]) }
-}
-
-#=====================================================================
 # Package Global Variables:
 
 our $VERSION = '0.01';
 
+#---------------------------------------------------------------------
+# Tied hashes for interpolating function calls into strings:
+
+{ package PostScript::Calendar::Interpolation;
+
+  sub TIEHASH { bless $_[1], $_[0] }
+  sub FETCH   { $_[0]->($_[1]) }
+} # end PostScript::Calendar::Interpolation
+
 our (%E, %S);
-tie %E, 'PostScript::Calendar::Interpolation', sub { $_[0] };
-tie %S, 'PostScript::Calendar::Interpolation', \&psstring;
+tie %E, 'PostScript::Calendar::Interpolation', sub { $_[0] }; # eval
+tie %S, 'PostScript::Calendar::Interpolation', \&psstring;    # quoted string
 
 #---------------------------------------------------------------------
+# Create a properly quoted PostScript string:
+
 my %special = (
   "\n" => '\n', "\r" => '\r', "\t" => '\t', "\b" => '\b',
   "\f" => '\f', "\\" => '\\', "("  => '\(', ")"  => '\)',
@@ -173,13 +174,10 @@ END_TITLE
 
       if (ref $day) {
         next unless $day->[0] eq 'split';
-        $ps->add_to_page(sprintf "%d %d (%d) showright\n",
-                         $x, $y, $day->[1]);
-        $ps->add_to_page(sprintf "%d %d (%d) showright\n",
-                         $x, $y - $dayHeight/2, $day->[2]);
+        $ps->add_to_page("$x $y $S{$day->[1]} showright\n" .
+                         "$x $E{$y - $dayHeight/2} $S{$day->[2]} showright\n");
       } else {
-        $ps->add_to_page(sprintf "%d %d (%d) showright\n",
-                         $x, $y, $day);
+        $ps->add_to_page("$x $y $S{$day} showright\n");
       }
     } # end foreach $day
 
