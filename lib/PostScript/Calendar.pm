@@ -22,7 +22,9 @@ use 5.006;
 use warnings;
 use strict;
 use Carp;
-use Date::Calc qw(Day_of_Week_to_Text Days_in_Month Day_of_Week Month_to_Text);
+use Date::Calc qw(Add_Delta_YM Day_of_Week Day_of_Week_to_Text
+                  Days_in_Month Month_to_Text);
+use Font::AFM;
 
 #=====================================================================
 # Package Global Variables:
@@ -58,6 +60,16 @@ sub psstring
   "($string)";
 } # end psstring
 
+#---------------------------------------------------------------------
+# Add delta months:
+#
+# ($year, $month) = Add_Delta_M($year, $month, $delta_months);
+
+sub Add_Delta_M
+{
+  (Add_Delta_YM($_[0], $_[1], 1, 0, $_[2]))[0,1];
+}
+
 #=====================================================================
 # Package PostScript::Calendar:
 
@@ -66,18 +78,19 @@ sub new
   my ($class, $year, $month, %p) = @_;
 
   my $self = bless {
-    events  => [],
-    psFile  => $p{ps_file},
-    condense => $p{condense},
-    border   => $p{border},
+    events    => [],
+    psFile    => $p{ps_file},
+    condense  => $p{condense},
+    border    => $p{border},
     dayHeight => $p{day_height},
-    title   => ($p{title} || sprintf '%s %d', Month_to_Text($month), $year),
-    days    => ($p{days} || [ 0 .. 6 ]), # Sun .. Sat
-    year    => $year,
-    month   => $month,
-    sideMar => (defined $p{side_margins} ? $p{side_margins} : 24),
-    topMar  => (defined $p{top_margin} ? $p{top_margin} : 36),
-    botMar  => (defined $p{bottom_margin} ? $p{bottom_margin} : 24),
+    mini      => $p{mini_calendars},
+    title     => ($p{title} || sprintf '%s %d', Month_to_Text($month), $year),
+    days      => ($p{days} || [ 0 .. 6 ]), # Sun .. Sat
+    year      => $year,
+    month     => $month,
+    sideMar   => (defined $p{side_margins} ? $p{side_margins} : 24),
+    topMar    => (defined $p{top_margin} ? $p{top_margin} : 36),
+    botMar    => (defined $p{bottom_margin} ? $p{bottom_margin} : 24),
   }, $class;
 
   my $days     = $self->{days};
@@ -163,6 +176,7 @@ END_TITLE
 
   $ps->add_to_page($p{dateFont}) if $p{dateFont};
 
+  my $showdate = $p{dateShow} || 'showright';
   my $y = $p{dayTop} - $p{dateSize} - $p{dateTopMar};
 
   foreach my $row (@$grid) {
@@ -174,10 +188,10 @@ END_TITLE
 
       if (ref $day) {
         next unless $day->[0] eq 'split';
-        $ps->add_to_page("$x $y $S{$day->[1]} showright\n" .
-                         "$x $E{$y - $dayHeight/2} $S{$day->[2]} showright\n");
+        $ps->add_to_page("$x $y $S{$day->[1]} $showdate\n" .
+                         "$x $E{$y - $dayHeight/2} $S{$day->[2]} $showdate\n");
       } else {
-        $ps->add_to_page("$x $y $S{$day} showright\n");
+        $ps->add_to_page("$x $y $S{$day} $showdate\n");
       }
     } # end foreach $day
 
@@ -186,13 +200,48 @@ END_TITLE
 
 } # end add_calendar
 
+sub add_mini_calendar
+{
+  my ($self, $year, $month, $x, $y, $width, $height) = @_;
+
+  my $grid = $self->compute_grid($year, $month);
+
+  my $cols = @{ $grid->[0] };
+
+  my $linespacing = 7;
+  my $sideMar = 6;
+  my $dayWidth = int(($width - 2 * $sideMar) * 4 / $cols) / 4.0;
+
+  my $font = Font::AFM->new('Helvetica'); # FIXME
+
+  $self->add_calendar($grid,
+    titleFont  => "MiniFont setfont\n",
+    labelFont  => '',
+    midpoint   => $x + $width/2,
+    midday     => $font->stringwidth('22', $linespacing) / 2,
+    titleY     => $y + $height - $linespacing,
+    title      => Month_to_Text($month),
+    dayHeight  => $linespacing,
+    dayWidth   => $dayWidth,
+    dateStartX => $x + $sideMar,# + $dayWidth,
+    dateShow   => 'showleft',
+    leftEdge   => $x + $sideMar,
+    dayNames   => [ map { substr($_,0,1) } @{$self->{dayNames}} ],
+    labelY     => $y + $height - 2 * $linespacing,
+    dayTop     => $y + $height - 2 * $linespacing,
+    dateSize   => $linespacing,
+    dateTopMar => 0,
+  );
+
+} # end add_mini_calendar
+
 #---------------------------------------------------------------------
 sub generate
 {
   my $self = $_[0];
 
-  my ($ps, $days, $year, $month, $topMar, $botMar, $sideMar)
-      = @$self{qw(psFile days year month topMar botMar sideMar)};
+  my ($ps, $days, $year, $month, $topMar, $botMar, $sideMar, $mini)
+      = @$self{qw(psFile days year month topMar botMar sideMar mini)};
 
   my ($width, $height, $landscape) =
       ($ps->get_width, $ps->get_height, $ps->get_landscape);
@@ -221,6 +270,26 @@ sub generate
 
   my $grid = $self->compute_grid($year, $month, $self->{condense});
 
+  if ($mini) {
+    my (@prev, @next);
+    push @$grid, [ (undef) x @$days ] if @$grid == 4;
+
+    if ($grid->[-1][-1] or
+        ($mini eq 'before' and not $grid->[0][1]) or
+        ($mini eq 'after'  and $grid->[-1][-2])) {
+      @prev = (0,0);  @next = (0,1); # Both calendars at beginning
+    } elsif ($grid->[0][0] or
+             ($mini eq 'after' and not $grid->[-1][-2]) or
+             ($mini eq 'before' and $grid->[0][1])) {
+      @prev = (-1,-2);  @next = (-1,-1); # Both calendars at end
+    } else {
+      @prev = (0,0);  @next = (-1,-1); # Split between beginning & end
+    }
+
+    $grid->[$prev[0]][$prev[1]] = [calendar => Add_Delta_M($year, $month, -1)];
+    $grid->[$next[0]][$next[1]] = [calendar => Add_Delta_M($year, $month,  1)];
+  } # end if mini calendars
+
   my $dayHeight = int(($dayTop - $botMar) / @$grid);
   if ($dayHeight > ($self->{dayHeight} || $dayHeight)) {
     $dayHeight = $self->{dayHeight};
@@ -238,6 +307,8 @@ sub generate
 /TitleFont /Helvetica-iso findfont TitleSize scalefont def
 /DateSize $titleSize def
 /DateFont /Helvetica-Oblique-iso findfont DateSize scalefont def
+/MiniSize 7 def % FIXME
+/MiniFont /Helvetica-iso findfont MiniSize scalefont def
 
 /pixel {72 mul 300 div} bind def % 300 dpi only
 
@@ -286,6 +357,19 @@ sub generate
 } bind def
 
 %---------------------------------------------------------------------
+% Print left justified text:  X Y STRING showleft
+%
+% Does not adjust vertical placement.
+
+/showleft
+{
+  newpath
+  3 1 roll  % STRING X Y
+  moveto
+  show
+} bind def
+
+%---------------------------------------------------------------------
 % Print right justified text:  X Y STRING showright
 %
 % Does not adjust vertical placement.
@@ -320,13 +404,16 @@ END_FUNCTIONS
       next unless $day;
 
       if (ref $day) {
-        next unless $day->[0] eq 'split';
-        my $lineY = $y + $dayHeight/2;
-        $ps->add_to_page(<<"END_SPLIT_LINE");
+        if ($day->[0] eq 'split') {
+          my $lineY = $y + $dayHeight/2;
+          $ps->add_to_page(<<"END_SPLIT_LINE");
 0 setlinecap
 2 pixel setlinewidth
 $dayWidth $x $lineY hline
 END_SPLIT_LINE
+        } elsif ($day->[0] eq 'calendar') {
+          $self->add_mini_calendar(@$day[1,2], $x, $y, $dayWidth, $dayHeight);
+        }
       } else {
       }
     } # end foreach $day
