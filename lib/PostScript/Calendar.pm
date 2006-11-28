@@ -261,6 +261,7 @@ END_TITLE
 
 } # end add_calendar
 
+#---------------------------------------------------------------------
 sub add_mini_calendar
 {
   my ($self, $year, $month, $x, $y, $width, $height) = @_;
@@ -508,13 +509,12 @@ END_FUNCTIONS
   if ($self->{phases}) {
     my ($phase, @dates) = $self->calc_moon_phases($year, $month);
     while (@dates) {
-      push(@{$events->[shift @dates][evPS]},
-           "/$phaseName[$phase] ShowPhase");
+      push @{$events->[shift @dates][evPS]}, "/$phaseName[$phase] ShowPhase";
       $phase = ($phase + 1) % 4;
     } # end while @dates
 
     unless ($ps->has_function('PostScript_Calendar_Moon'))
-  { $ps->add_function('PostScript_Calendar_Moon', <<"END_MOON_FUNCTIONS") }
+    { $ps->add_function('PostScript_Calendar_Moon', <<"END_MOON_FUNCTIONS") }
 /MoonBorder 6 def
 
 %---------------------------------------------------------------------
@@ -526,7 +526,8 @@ END_FUNCTIONS
   MoonBorder DateSize 2 div add
   DayHeight MoonBorder sub
   DateSize 2 div sub
-  DateSize 2 div 0 360 arc
+  DateSize 2 div
+  0 360 arc
   closepath
   cvx exec
 } def
