@@ -179,6 +179,40 @@ sub compute_grid
 } # end compute_grid
 
 #---------------------------------------------------------------------
+sub shade
+{
+  my $self = shift @_;
+
+  my $events = $self->{events};
+
+  while (@_) {
+    unshift @{$events->[shift @_][evPS]}, "ShadeDay";
+  }
+} # end shade
+
+#---------------------------------------------------------------------
+sub shade_days_of_week
+{
+  my $self = shift @_;
+
+  my ($year, $month) = @$self{qw(year month)};
+
+  my (@shade, @dates);
+
+  # @shade indicates which days of week to shade
+  foreach (@_) { $shade[$_ % 7] = 1 }
+
+  my $dow = Day_of_Week($year, $month, 1) % 7;
+
+  for my $date (1 .. Days_in_Month($year, $month)) {
+    push @dates, $date if $shade[$dow];
+    $dow = ($dow + 1) % 7;
+  }
+
+  $self->shade(@dates) if @dates;
+} # end shade_days_of_week
+
+#---------------------------------------------------------------------
 sub add_calendar
 {
   my ($self, $grid, %p) = @_;
@@ -445,6 +479,30 @@ END_PAGE_INIT
   rmoveto
   show
 } bind def
+
+%---------------------------------------------------------------------
+% Fill a day rect with the current ink:
+
+/FillDay
+{
+  newpath
+  0 0 moveto
+  DayWidth 0 lineto
+  DayWidth DayHeight lineto
+  0 DayHeight lineto
+  closepath
+  fill
+} def
+
+%---------------------------------------------------------------------
+% Shade a day with the default background:
+
+/ShadeDay
+{
+  0.85 setgray
+  FillDay
+  0 setgray
+} bind def
 END_FUNCTIONS
 
   if ($self->{phases}) {
@@ -460,6 +518,8 @@ END_FUNCTIONS
 /MoonBorder 6 def
 
 %---------------------------------------------------------------------
+% Show the phase of the moon:  PHASE ShowPhase
+
 /ShowPhase
 {
   newpath
