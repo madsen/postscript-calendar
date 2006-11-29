@@ -213,7 +213,7 @@ sub shade_days_of_week
 } # end shade_days_of_week
 
 #---------------------------------------------------------------------
-sub add_calendar
+sub print_calendar
 {
   my ($self, $grid, %p) = @_;
 
@@ -259,10 +259,10 @@ END_TITLE
     $y -= $dayHeight;
   } # end foreach $row
 
-} # end add_calendar
+} # end print_calendar
 
 #---------------------------------------------------------------------
-sub add_mini_calendar
+sub print_mini_calendar
 {
   my ($self, $year, $month, $x, $y, $width, $height) = @_;
 
@@ -276,7 +276,7 @@ sub add_mini_calendar
 
   my $font = Font::AFM->new('Helvetica'); # FIXME
 
-  $self->add_calendar($grid,
+  $self->print_calendar($grid,
     titleFont  => "MiniFont setfont\n",
     labelFont  => '',
     midpoint   => $x + $width/2,
@@ -295,10 +295,10 @@ sub add_mini_calendar
     dateTopMar => 0,
   );
 
-} # end add_mini_calendar
+} # end print_mini_calendar
 
 #---------------------------------------------------------------------
-sub add_events
+sub print_events
 {
   my ($self, $events, $x, $y, $width, $height, $special) = @_;
 
@@ -315,7 +315,7 @@ sub add_events
     $ps->add_to_page("end\n") if $special;
     $ps->add_to_page("grestore\n");
   }
-} # end add_events
+} # end print_events
 
 #---------------------------------------------------------------------
 sub generate
@@ -573,25 +573,27 @@ END_MOON_FUNCTIONS
       if (ref $day) {
         if ($day->[0] eq 'split') {
           my $lineY = $y + $splitHeight;
-          $self->add_events($events->[$day->[1]], $x, $lineY,
-                            $dayWidth, $splitHeight, 1) if $events->[$day->[1]];
-          $self->add_events($events->[$day->[2]], $x, $y,
-                            $dayWidth, $splitHeight, 1) if $events->[$day->[2]];
+          $self->print_events($events->[$day->[1]], $x, $lineY,
+                              $dayWidth, $splitHeight, 1)
+              if $events->[$day->[1]];
+          $self->print_events($events->[$day->[2]], $x, $y,
+                              $dayWidth, $splitHeight, 1)
+              if $events->[$day->[2]];
 
           $ps->add_to_page(<<"END_SPLIT_LINE");
 $dayWidth $x $lineY hline
 END_SPLIT_LINE
         } elsif ($day->[0] eq 'calendar') {
-          $self->add_mini_calendar(@$day[1,2], $x, $y, $dayWidth, $dayHeight);
+          $self->print_mini_calendar(@$day[1,2], $x, $y, $dayWidth, $dayHeight);
         }
       } else {
-        $self->add_events($events->[$day], $x, $y, $dayWidth, $dayHeight)
+        $self->print_events($events->[$day], $x, $y, $dayWidth, $dayHeight)
             if $events->[$day];
       }
     } # end foreach $day
   } # end foreach $row
 
-  $self->add_calendar($grid,
+  $self->print_calendar($grid,
     titleFont  => "TitleFont setfont\n",
     labelFont  => '',
     dateFont   => "DateFont setfont\n",
