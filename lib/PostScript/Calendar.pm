@@ -91,6 +91,7 @@ sub Add_Delta_M
 sub evTxt () { 0 }
 sub evPS  () { 1 }
 sub evBackground () { 2 }
+sub evTopMargin  () { 3 }
 
 #=====================================================================
 # Package PostScript::Calendar:
@@ -124,10 +125,15 @@ sub new
     dateSize  => $p{date_size} || $p{title_size} || 14,
     eventFont => $p{event_font} || 'Helvetica-iso',
     eventSize => $p{event_size} || 8,
+    eventSkip => firstdef($p{event_skip}, 2),
     miniFont  => $p{mini_font} || 'Helvetica-iso',
     miniSize  => $p{mini_size} || 7,
     dateRightMar => firstdef($p{date_right_margin}, 4),
     dateTopMar   => firstdef($p{date_top_margin},   2),
+    eventTopMar   => firstdef($p{event_top_margin},   $p{event_margin}, 2),
+    eventLeftMar  => firstdef($p{event_left_margin},  $p{event_margin}, 3),
+    eventRightMar => firstdef($p{event_right_margin}, $p{event_margin}, 2),
+    moonMargin    => firstdef($p{moon_margin}, 6),
   }, $class;
 
   my $days     = $self->{days};
@@ -341,9 +347,11 @@ sub print_events
 
   my $ps = $self->{psFile};
 
+  # Handle background:
   unshift @{$events->[evPS]}, $events->[evBackground]
       if $events->[evBackground];
 
+  # Handle PostScript events:
   if ($events->[evPS]) {
     $ps->add_to_page("gsave\n$x $y translate\n");
 
@@ -354,14 +362,20 @@ sub print_events
 
     $ps->add_to_page("end\n") if $special;
     $ps->add_to_page("grestore\n");
-  }
+  } # end if we have PostScript events
 
+  # Handle text events:
   if ($events->[evTxt]) {
+    my ($eventSize, $eventTopMar, $eventLeftMar, $eventRightMar) =
+        @$self{qw(eventSize eventTopMar eventLeftMar eventRightMar)};
+    my $startY = ($height - $eventSize - $eventTopMar
+                  - ($events->[evTopMargin] || 0));
+
     my $text = join("\n", map { psstring($_) } @{ $events->[evTxt] });
     $ps->add_to_page(<<"END_EVENTS");
-$E{$x + 4} $E{$y + $height - 20} [$text] Events
+$E{$x + $eventLeftMar} $E{$y + $startY} [$text] Events
 END_EVENTS
-  }
+  } # end if we have text events
 } # end print_events
 
 #---------------------------------------------------------------------
@@ -440,6 +454,7 @@ END_PAGE_INIT
 /DateFont /$self->{dateFont} findfont DateSize scalefont def
 /EventSize $self->{eventSize} def
 /EventFont /$self->{eventFont} findfont EventSize scalefont def
+/EventSpacing $E{$self->{eventSize} + $self->{eventSkip}} def
 /MiniSize $self->{miniSize} def
 /MiniFont /$self->{miniFont} findfont MiniSize scalefont def
 
@@ -536,7 +551,7 @@ END_PAGE_INIT
     2 index      % stack X Y STRING X
     3 -1 roll    % stack X STRING X Y
     dup          % stack X STRING X Y Y
-    EventSize sub
+    EventSpacing sub
     4 1 roll     % stack X Y' STRING X Y
     newpath
     moveto
@@ -572,14 +587,18 @@ END_FUNCTIONS
 
   if ($self->{phases}) {
     my ($phase, @dates) = $self->calc_moon_phases($year, $month);
+    my $margin = $self->{moonMargin} + $self->{dateSize};
     while (@dates) {
+      if ($margin > ($events->[$dates[0]][evTopMargin] || 0)) {
+        $events->[$dates[0]][evTopMargin] = $margin;
+      }
       push @{$events->[shift @dates][evPS]}, "/$phaseName[$phase] ShowPhase";
       $phase = ($phase + 1) % 4;
     } # end while @dates
 
     unless ($ps->has_function('PostScript_Calendar_Moon'))
     { $ps->add_function('PostScript_Calendar_Moon', <<"END_MOON_FUNCTIONS") }
-/MoonBorder 6 def
+/MoonMargin $self->{moonMargin} def
 
 %---------------------------------------------------------------------
 % Show the phase of the moon:  PHASE ShowPhase
@@ -587,8 +606,8 @@ END_FUNCTIONS
 /ShowPhase
 {
   newpath
-  MoonBorder DateSize 2 div add
-  DayHeight MoonBorder sub
+  MoonMargin DateSize 2 div add
+  DayHeight MoonMargin sub
   DateSize 2 div sub
   DateSize 2 div
   0 360 arc
@@ -603,8 +622,8 @@ END_FUNCTIONS
 {
   FullMoon
   newpath
-  MoonBorder DateSize 2 div add
-  DayHeight MoonBorder sub DateSize 2 div sub
+  MoonMargin DateSize 2 div add
+  DayHeight MoonMargin sub DateSize 2 div sub
   DateSize 2 div
   90 270 arc
   closepath fill
@@ -614,8 +633,8 @@ END_FUNCTIONS
 {
   FullMoon
   newpath
-  MoonBorder DateSize 2 div add
-  DayHeight MoonBorder sub DateSize 2 div sub
+  MoonMargin DateSize 2 div add
+  DayHeight MoonMargin sub DateSize 2 div sub
   DateSize 2 div
   270 90 arc
   closepath fill
