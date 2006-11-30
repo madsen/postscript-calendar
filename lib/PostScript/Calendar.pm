@@ -63,6 +63,18 @@ sub psstring
 } # end psstring
 
 #---------------------------------------------------------------------
+# Return the first defined value:
+
+sub firstdef
+{
+  foreach (@_) {
+    return $_ if defined $_;
+  }
+
+  $_[-1];
+} # end firstdef
+
+#---------------------------------------------------------------------
 # Add delta months:
 #
 # ($year, $month) = Add_Delta_M($year, $month, $delta_months);
@@ -78,6 +90,7 @@ sub Add_Delta_M
 
 sub evTxt () { 0 }
 sub evPS  () { 1 }
+sub evBackground () { 2 }
 
 #=====================================================================
 # Package PostScript::Calendar:
@@ -98,9 +111,23 @@ sub new
     days      => ($p{days} || [ 0 .. 6 ]), # Sun .. Sat
     year      => $year,
     month     => $month,
-    sideMar   => (defined $p{side_margins} ? $p{side_margins} : 24),
-    topMar    => (defined $p{top_margin} ? $p{top_margin} : 36),
-    botMar    => (defined $p{bottom_margin} ? $p{bottom_margin} : 24),
+    sideMar   => firstdef($p{side_margins},  24),
+    topMar    => firstdef($p{top_margin},    36),
+    botMar    => firstdef($p{bottom_margin}, 24),
+    titleFont => $p{title_font} || 'Helvetica-iso',
+    titleSize => $p{title_size} || 14,
+    titleSkip => firstdef($p{title_skip}, 5),
+    labelFont => $p{label_font} || $p{title_font} || 'Helvetica-iso',
+    labelSize => $p{label_size} || $p{title_size} || 14,
+    labelSkip => firstdef($p{label_skip}, $p{title_skip}, 5),
+    dateFont  => $p{date_font} || 'Helvetica-Oblique-iso',
+    dateSize  => $p{date_size} || $p{title_size} || 14,
+    eventFont => $p{event_font} || 'Helvetica-iso',
+    eventSize => $p{event_size} || 8,
+    miniFont  => $p{mini_font} || 'Helvetica-iso',
+    miniSize  => $p{mini_size} || 7,
+    dateRightMar => firstdef($p{date_right_margin}, 4),
+    dateTopMar   => firstdef($p{date_top_margin},   2),
   }, $class;
 
   my $days     = $self->{days};
@@ -179,6 +206,14 @@ sub compute_grid
 } # end compute_grid
 
 #---------------------------------------------------------------------
+sub add_event
+{
+  my ($self, $date, $message) = @_;
+
+  push @{$self->{events}[$date][evTxt]}, $message;
+} # end add_event
+
+#---------------------------------------------------------------------
 sub shade
 {
   my $self = shift @_;
@@ -186,7 +221,7 @@ sub shade
   my $events = $self->{events};
 
   while (@_) {
-    unshift @{$events->[shift @_][evPS]}, "ShadeDay";
+    $events->[shift @_][evBackground] = "ShadeDay";
   }
 } # end shade
 
@@ -270,11 +305,13 @@ sub print_mini_calendar
 
   my $cols = @{ $grid->[0] };
 
-  my $linespacing = 7;
-  my $sideMar = 6;
+  my $linespacing = $self->{miniSize};
+  my $sideMar = 6; # FIXME
   my $dayWidth = int(($width - 2 * $sideMar) * 4 / $cols) / 4.0;
 
-  my $font = Font::AFM->new('Helvetica'); # FIXME
+  my $font = $self->{miniFont};
+  $font =~ s/-iso$//;
+  $font = Font::AFM->new($font);
 
   $self->print_calendar($grid,
     titleFont  => "MiniFont setfont\n",
@@ -304,6 +341,9 @@ sub print_events
 
   my $ps = $self->{psFile};
 
+  unshift @{$events->[evPS]}, $events->[evBackground]
+      if $events->[evBackground];
+
   if ($events->[evPS]) {
     $ps->add_to_page("gsave\n$x $y translate\n");
 
@@ -315,6 +355,13 @@ sub print_events
     $ps->add_to_page("end\n") if $special;
     $ps->add_to_page("grestore\n");
   }
+
+  if ($events->[evTxt]) {
+    my $text = join("\n", map { psstring($_) } @{ $events->[evTxt] });
+    $ps->add_to_page(<<"END_EVENTS");
+$E{$x + 4} $E{$y + $height - 20} [$text] Events
+END_EVENTS
+  }
 } # end print_events
 
 #---------------------------------------------------------------------
@@ -322,8 +369,10 @@ sub generate
 {
   my $self = $_[0];
 
-  my ($ps, $days, $events, $year, $month, $topMar, $botMar, $sideMar, $mini)
-      = @$self{qw(psFile days events year month topMar botMar sideMar mini)};
+  my ($ps, $days, $events, $year, $month, $topMar, $botMar, $sideMar, $mini,
+      $titleSize, $dayLabelSize, $labelSkip)
+      = @$self{qw(psFile days events year month topMar botMar sideMar mini
+                  titleSize labelSize labelSkip)};
 
   my ($width, $height, $landscape) =
       ($ps->get_width, $ps->get_height, $ps->get_landscape);
@@ -337,18 +386,12 @@ sub generate
   my $gridRight = $leftEdge + $gridWidth;
 
   my $midpoint = $width / 2;
-  my $titleSize = 14;
-  my $dayLabelSize = 14;
-  my $dateSize = 14;
-  my $dateRightMar = 4;
-  my $dateTopMar = 2;
 
   my $titleY = $height - $titleSize - $topMar;
 
-  my $labelMar = 5;
-  my $labelY   = $titleY - $dayLabelSize - $labelMar;
+  my $labelY   = $titleY - $dayLabelSize - $self->{titleSkip};
 
-  my $dayTop = $labelY - $labelMar;
+  my $dayTop = $labelY - $labelSkip;
 
   my $grid = $self->compute_grid($year, $month, $self->{condense});
 
@@ -378,7 +421,7 @@ sub generate
   }
 
   my $gridBottom = $dayTop - $dayHeight * @$grid;
-  my $gridHeight = $dayTop - $gridBottom + $dayLabelSize + $labelMar;
+  my $gridHeight = $dayTop - $gridBottom + $dayLabelSize + $labelSkip;
   my $gridTop    = $gridBottom + $gridHeight;
 
   $ps->add_to_page(<<"END_PAGE_INIT");
@@ -392,11 +435,13 @@ END_PAGE_INIT
 /DayHeight $dayHeight def
 /DayWidth $dayWidth def
 /TitleSize $titleSize def
-/TitleFont /Helvetica-iso findfont TitleSize scalefont def
-/DateSize $titleSize def
-/DateFont /Helvetica-Oblique-iso findfont DateSize scalefont def
-/MiniSize 7 def % FIXME
-/MiniFont /Helvetica-iso findfont MiniSize scalefont def
+/TitleFont /$self->{titleFont} findfont TitleSize scalefont def
+/DateSize $self->{dateSize} def
+/DateFont /$self->{dateFont} findfont DateSize scalefont def
+/EventSize $self->{eventSize} def
+/EventFont /$self->{eventFont} findfont EventSize scalefont def
+/MiniSize $self->{miniSize} def
+/MiniFont /$self->{miniFont} findfont MiniSize scalefont def
 
 /pixel {72 mul 300 div} bind def % 300 dpi only
 
@@ -480,6 +525,25 @@ END_PAGE_INIT
   rmoveto
   show
 } bind def
+
+%---------------------------------------------------------------------
+% Display text events:  X Y [STRING ...] Events
+
+/Events
+{
+  EventFont setfont
+  {
+    2 index      % stack X Y STRING X
+    3 -1 roll    % stack X STRING X Y
+    dup          % stack X STRING X Y Y
+    EventSize sub
+    4 1 roll     % stack X Y' STRING X Y
+    newpath
+    moveto
+    show
+  } forall
+  pop pop        % pop off X & Y
+} def
 
 %---------------------------------------------------------------------
 % Fill a day rect with the current ink:
@@ -603,13 +667,13 @@ END_SPLIT_LINE
     title      => $self->{title},
     dayHeight  => $dayHeight,
     dayWidth   => $dayWidth,
-    dateStartX => $leftEdge + $dayWidth - $dateRightMar,
+    dateStartX => $leftEdge + $dayWidth - $self->{dateRightMar},
     leftEdge   => $leftEdge,
     dayNames   => $self->{dayNames},
     labelY     => $labelY,
     dayTop     => $dayTop,
-    dateSize   => $dateSize,
-    dateTopMar => $dateTopMar,
+    dateSize   => $self->{dateSize},
+    dateTopMar => $self->{dateTopMar},
   );
 
   $ps->add_to_page(<<"END_HOR_LINES");
