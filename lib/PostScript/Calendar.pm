@@ -112,9 +112,9 @@ sub new
     days      => ($p{days} || [ 0 .. 6 ]), # Sun .. Sat
     year      => $year,
     month     => $month,
-    sideMar   => firstdef($p{side_margins},  24),
-    topMar    => firstdef($p{top_margin},    36),
-    botMar    => firstdef($p{bottom_margin}, 24),
+    sideMar   => firstdef($p{side_margins},  $p{margin}, 24),
+    topMar    => firstdef($p{top_margin},    $p{margin}, 36),
+    botMar    => firstdef($p{bottom_margin}, $p{margin}, 24),
     titleFont => $p{title_font} || 'Helvetica-iso',
     titleSize => $p{title_size} || 14,
     titleSkip => firstdef($p{title_skip}, 5),
@@ -210,6 +210,19 @@ sub compute_grid
 
   return \@grid;
 } # end compute_grid
+
+#---------------------------------------------------------------------
+sub get_metrics
+{
+  my ($self, $font) = @_;
+  $font =~ s/-iso$//;
+
+  my $metrics = $self->{fontCache}{$font};
+
+  return $metrics if $metrics;
+
+  $self->{fontCache}{$font} = Font::AFM->new($font);
+} # end get_metrics
 
 #---------------------------------------------------------------------
 sub add_event
@@ -315,9 +328,7 @@ sub print_mini_calendar
   my $sideMar = 6; # FIXME
   my $dayWidth = int(($width - 2 * $sideMar) * 4 / $cols) / 4.0;
 
-  my $font = $self->{miniFont};
-  $font =~ s/-iso$//;
-  $font = Font::AFM->new($font);
+  my $font = $self->get_metrics($self->{miniFont});
 
   $self->print_calendar($grid,
     titleFont  => "MiniFont setfont\n",
@@ -343,8 +354,9 @@ sub print_mini_calendar
 #---------------------------------------------------------------------
 sub print_events
 {
-  my ($self, $events, $x, $y, $width, $height, $special) = @_;
+  my ($self, $eventArray, $date, $x, $y, $width, $height, $special) = @_;
 
+  my $events = $eventArray->[$date];
   my $ps = $self->{psFile};
 
   # Handle background:
@@ -368,15 +380,69 @@ sub print_events
   if ($events->[evTxt]) {
     my ($eventSize, $eventTopMar, $eventLeftMar, $eventRightMar) =
         @$self{qw(eventSize eventTopMar eventLeftMar eventRightMar)};
-    my $startY = ($height - $eventSize - $eventTopMar
-                  - ($events->[evTopMargin] || 0));
+    my $useY = $height - $eventTopMar - ($events->[evTopMargin] || 0);
 
-    my $text = join("\n", map { psstring($_) } @{ $events->[evTxt] });
+    my $text = $self->wrap_events($useY, $width, $height, $events->[evTxt],
+                                  $date);
     $ps->add_to_page(<<"END_EVENTS");
-$E{$x + $eventLeftMar} $E{$y + $startY} [$text] Events
+$E{$x + $eventLeftMar} $E{$y + $useY - $eventSize} [$text] Events
 END_EVENTS
   } # end if we have text events
 } # end print_events
+
+#---------------------------------------------------------------------
+sub wrap_events
+{
+  my ($self, $y, $width, $height, $events, $date) = @_;
+
+  my $metrics      = $self->get_metrics($self->{eventFont});
+  my $eventSize    = $self->{eventSize};
+  my $eventSpacing = $eventSize + $self->{eventSkip};
+
+  my $dateSize   = $self->{dateSize};
+  my $dateBottom = $height - $dateSize - $self->{dateTopMar};
+
+  my $fullWidth = ($width -= $self->{eventLeftMar} + $self->{eventRightMar});
+
+  if ($y > $dateBottom) {
+    my $dateMetrics = $self->get_metrics($self->{dateFont});
+
+    $width -= ($dateMetrics->stringwidth($date, $dateSize) +
+               $self->{dateRightMar});
+  }
+
+  my $next;
+
+  for (my $i = 0; $i <= $#$events; ++$i, $y -= $eventSpacing) {
+    $width = $fullWidth if $y < $dateBottom;
+
+    if ($y < $eventSize) {
+      carp sprintf("WARNING: Event text for %s-%02d-%02d doesn't fit",
+                   $self->{year}, $self->{month}, $date);
+      splice @$events, $i, scalar @$events;
+      last;
+    } # end if we ran out of space
+
+    for ($events->[$i]) {
+      s/\s+$//;                 # Remove trailing space, if any
+
+      $next = '';
+      while (($metrics->stringwidth($_, $eventSize) > $width) and
+             (s/-([^- \t\n]+-*)$/-/ or
+              s/([ \t\n]+[^- \t\n]*-*)$// or
+              s/(.)$//)) {
+        $next = $1 . $next;
+      } # end while string too wide
+
+      if (length $next) {
+        $next =~ s/^\s+//;
+        splice @$events, $i+1,0, $next;
+      } # end if string was too wide
+    } # end for this event string
+  } # end for each event
+
+  join("\n", map { psstring($_) } @$events);
+} # end wrap_events
 
 #---------------------------------------------------------------------
 sub generate
@@ -441,7 +507,7 @@ sub generate
   $ps->add_to_page(<<"END_PAGE_INIT");
 0 setlinecap
 0 setlinejoin
-2 pixel setlinewidth
+3 pixel setlinewidth
 END_PAGE_INIT
 
   unless ($ps->has_function('PostScript_Calendar'))
@@ -656,10 +722,10 @@ END_MOON_FUNCTIONS
       if (ref $day) {
         if ($day->[0] eq 'split') {
           my $lineY = $y + $splitHeight;
-          $self->print_events($events->[$day->[1]], $x, $lineY,
+          $self->print_events($events, $day->[1], $x, $lineY,
                               $dayWidth, $splitHeight, 1)
               if $events->[$day->[1]];
-          $self->print_events($events->[$day->[2]], $x, $y,
+          $self->print_events($events, $day->[2], $x, $y,
                               $dayWidth, $splitHeight, 1)
               if $events->[$day->[2]];
 
@@ -670,7 +736,7 @@ END_SPLIT_LINE
           $self->print_mini_calendar(@$day[1,2], $x, $y, $dayWidth, $dayHeight);
         }
       } else {
-        $self->print_events($events->[$day], $x, $y, $dayWidth, $dayHeight)
+        $self->print_events($events, $day, $x, $y, $dayWidth, $dayHeight)
             if $events->[$day];
       }
     } # end foreach $day
