@@ -127,7 +127,7 @@ sub new
     eventSize => $p{event_size} || 8,
     eventSkip => firstdef($p{event_skip}, 2),
     miniFont  => $p{mini_font} || 'Helvetica-iso',
-    miniSize  => $p{mini_size} || 7,
+    miniSize  => $p{mini_size} || 5.5,
     dateRightMar => firstdef($p{date_right_margin}, 4),
     dateTopMar   => firstdef($p{date_top_margin},   2),
     eventTopMar   => firstdef($p{event_top_margin},   $p{event_margin}, 2),
@@ -156,6 +156,9 @@ sub new
       landscape   => $p{landscape},
     );
   }
+
+  $self->shade_days_of_week(@{ $p{shade_days_of_week} })
+      if $p{shade_days_of_week};
 
   $self;
 } # end new
