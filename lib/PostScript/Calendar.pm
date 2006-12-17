@@ -127,12 +127,15 @@ sub new
     eventSize => $p{event_size} || 8,
     eventSkip => firstdef($p{event_skip}, 2),
     miniFont  => $p{mini_font} || 'Helvetica-iso',
-    miniSize  => $p{mini_size} || 5.5,
+    miniSize  => $p{mini_size} || 6,
+    miniSkip  => firstdef($p{mini_skip}, 3),
     dateRightMar => firstdef($p{date_right_margin}, 4),
     dateTopMar   => firstdef($p{date_top_margin},   2),
     eventTopMar   => firstdef($p{event_top_margin},   $p{event_margin}, 2),
     eventLeftMar  => firstdef($p{event_left_margin},  $p{event_margin}, 3),
     eventRightMar => firstdef($p{event_right_margin}, $p{event_margin}, 2),
+    miniSideMar   => firstdef($p{mini_side_margins}, $p{mini_margin}, 4),
+    miniTopMar    => firstdef($p{mini_top_margin},   $p{mini_margin}, 4),
     moonMargin    => firstdef($p{moon_margin}, 6),
   }, $class;
 
@@ -323,32 +326,40 @@ sub print_mini_calendar
 {
   my ($self, $year, $month, $x, $y, $width, $height) = @_;
 
+  my $yTop = $y + $height - $self->{miniTopMar};
   my $grid = $self->compute_grid($year, $month);
-
   my $cols = @{ $grid->[0] };
 
-  my $linespacing = $self->{miniSize};
-  my $sideMar = 6; # FIXME
-  my $dayWidth = int(($width - 2 * $sideMar) * 4 / $cols) / 4.0;
+  my $fontsize    = $self->{miniSize};
+  my $linespacing = $fontsize + $self->{miniSkip};
+  my $sideMar     = $self->{miniSideMar};
 
   my $font = $self->get_metrics($self->{miniFont});
+  my $numWidth = $font->stringwidth('22', $fontsize);
+
+  my $colSpacing = (($cols > 1)
+                    ? ($width - 2 * $sideMar - $cols * $numWidth) / ($cols - 1)
+                    : 0);
+
+  my $dayWidth = int(($numWidth + $colSpacing) * 8) / 8.0; # Round to 1/8
+  my $midday   = int($numWidth * 4) / 8.0; # Divide by 2 and round to 1/8
 
   $self->print_calendar($grid,
     titleFont  => "MiniFont setfont\n",
     labelFont  => '',
     midpoint   => $x + $width/2,
-    midday     => $font->stringwidth('22', $linespacing) / 2,
-    titleY     => $y + $height - $linespacing,
+    midday     => $midday,
+    titleY     => $yTop - $fontsize,
     title      => Month_to_Text($month),
     dayHeight  => $linespacing,
     dayWidth   => $dayWidth,
-    dateStartX => $x + $sideMar,# + $dayWidth,
-    dateShow   => 'showleft',
+    dateStartX => $x + $sideMar + $midday,
+    dateShow   => 'showcenter',
     leftEdge   => $x + $sideMar,
     dayNames   => [ map { substr($_,0,1) } @{$self->{dayNames}} ],
-    labelY     => $y + $height - 2 * $linespacing,
-    dayTop     => $y + $height - 2 * $linespacing,
-    dateSize   => $linespacing,
+    labelY     => $yTop - $fontsize - $linespacing,
+    dayTop     => $yTop - 2 * $linespacing,
+    dateSize   => $fontsize,
     dateTopMar => 0,
   );
 
