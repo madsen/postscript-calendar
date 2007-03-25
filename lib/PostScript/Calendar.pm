@@ -1,9 +1,9 @@
 #---------------------------------------------------------------------
 package PostScript::Calendar;
 #
-# Copyright 2006 Christopher J. Madsen
+# Copyright 2007 Christopher J. Madsen
 #
-# Author: Christopher J. Madsen <cjm@pobox.com>
+# Author: Christopher J. Madsen <perl@cjmweb.net>
 # Created: Sat Nov 25 14:32:55 2006
 # $Id$
 #
@@ -88,10 +88,15 @@ sub Add_Delta_M
 # Constants:
 #---------------------------------------------------------------------
 
+# This is one time subroutine prototypes are useful:
+## no critic (ProhibitSubroutinePrototypes)
+
 sub evTxt () { 0 }
 sub evPS  () { 1 }
 sub evBackground () { 2 }
 sub evTopMargin  () { 3 }
+
+## use critic
 
 #=====================================================================
 # Package PostScript::Calendar:
@@ -104,7 +109,7 @@ sub new
     events    => [],
     psFile    => $p{ps_file},
     condense  => $p{condense},
-    border    => $p{border},
+    border    => firstdef($p{border}, 1),
     dayHeight => $p{day_height},
     mini      => $p{mini_calendars},
     phases    => $p{phases},
@@ -825,7 +830,7 @@ __END__
 
 =head1 NAME
 
-PostScript::Calendar - [One line description of module's purpose here]
+PostScript::Calendar - Generate a monthly calendar in PostScript
 
 =head1 VERSION
 
@@ -834,114 +839,329 @@ This document describes PostScript::Calendar version 0.01
 
 =head1 SYNOPSIS
 
-    use PostScript::Calendar;
+  use PostScript::Calendar;
 
-=for author to fill in:
-    Brief code example(s) here showing commonest usage(s).
-    This section will be as far as many users bother reading
-    so make it as educational and exeplary as possible.
+  my $cal = PostScript::Calendar->new($year, $month, phases => 1,
+                                      mini_calendars => 'before');
+  $cal->output('filename');
 
 
 =head1 DESCRIPTION
 
-=for author to fill in:
-    Write a full description of the module and its features here.
-    Use subsections (=head2, =head3) as appropriate.
+PostScript::Calendar generates printable calendars using PostScript.
 
+PostScript::Calendar uses Date::Calc's C<*_to_Text> functions, so you
+can change the language used by calling Date::Calc's C<Language>
+function before creating your calendar.
+
+Years must be fully specified (e.g., use 1990, not 90).  Months range
+from 1 to 12.  Days of the week can be specified as 0 to 7 (where
+Sunday is either 0 or 7, Monday is 1, etc.).
+
+All dimensions are specified in PostScript points (72 per inch).
 
 =head1 INTERFACE
 
-=for author to fill in:
-    Write a separate section listing the public components of the modules
-    interface. These normally consist of either subroutines that may be
-    exported, or methods that may be called on objects belonging to the
-    classes provided by the module.
+=head2 C<< $cal = PostScript::Calendar->new($year, $month, [key => value, ...]) >>
 
+This constructs a new PostScript::Calendar object for C<$year> and C<$month>.
 
-=head1 DIAGNOSTICS
-
-=for author to fill in:
-    List every single error and warning message that the module can
-    generate (even the ones that will "never happen"), with a full
-    explanation of each problem, one or more likely causes, and any
-    suggested remedies.
+There are a large number of parameters you can pass to customize how
+the calendar is displayed.  They are all passed as C<< name => value >> pairs.
 
 =over
 
-=item C<< Error message here, perhaps with %s placeholders >>
+=item C<border>
 
-[Description of error here]
+If false, omit the border around the calendar grid (only internal grid
+lines are drawn).  The default is true.
 
-=item C<< Another error message here >>
+=item C<condense>
 
-[Description of error here]
+If true, reduce calendars that would span 6 rows down to 5 rows by
+combining either the first or last day with its neighbor.  The default
+is false.
 
-[Et cetera, et cetera]
+=item C<day_height>
+
+The maximum height of a date row.  This is useful to prevent
+portrait-mode calendars from taking up the entire page (which just
+doesn't look right).  The default is 0, which means there is no
+maximum value.  I recommend 96 for a portrait-mode calendar on US
+letter size paper.
+
+=item C<mini_calendars>
+
+This causes small calendars for the previous and next months to be
+printed.  The value should be C<"before"> to put them before the first
+of the month, C<"after"> to put them after the last day of the month, or
+C<"split"> to put the previous month before and the next month after.
+The default is a false value (which means no mini calendars).
+
+=item C<phases>
+
+If true, the phase of the moon icons are printed.  The default is false.
+
+=item C<title>
+
+The title to be printed at the top of the calendar.  The default is
+"Month YEAR" (where Month comes from Month_to_Text, and YEAR is
+numeric.)
+
+=item C<days>
+
+An arrayref specifying the days of the week to be included in the
+calendar.  The first day must be in the range 0 to 6 (where Sunday is
+0, Monday is 1, etc.).  Subsequent days must be in ascending order, up
+to the initial day + 6.The default is C<[ 0 .. 6 ]> (meaning Sunday
+thru Saturday).  Other popular values are C<[ 1 .. 7 ]> for Monday
+thru Sunday or C<[ 1 .. 5 ]> for Monday thru Friday (no weekends).
+
+You may skip over days if you don't want them included.  For example,
+C<[ 3, 5, 8 ]> would display Wednesday, Friday, and Monday (with weeks
+starting on Wednesday).
+
+=item C<day_names>
+
+Arrayref of the column labels.  Defaults to passing the (normalized)
+values from C<days> thru Date::Calc's C<Day_of_Week_to_Text>, which is
+probably what you want.
+
+=item C<title_font>
+
+The font to use for the C<title>.  Defaults to Helvetica-iso.
+
+=item C<title_size>
+
+The size of the C<title_font> to use.  Defaults to 14.
+
+=item C<title_skip>
+
+Extra space (in points) to leave below the C<title>.  Defaults to 5.
+
+=item C<label_font>
+
+The font to use for the days of the week.  Defaults to C<title_font>.
+
+=item C<label_size>
+
+The size of the C<label_font> to use.  Defaults to C<title_size>.
+
+=item C<label_skip>
+
+Extra space (in points) to leave below the weekday labels.  Defaults
+to C<title_skip>.
+
+=item C<date_font>
+
+The font to use for the dates of the month.  Defaults to Helvetica-Oblique-iso.
+
+=item C<date_size>
+
+The size of the C<date_font> to use.  Defaults to C<title_size>.
+
+=item C<event_font>
+
+The font to use for text events (added by C<add_event>).  Defaults to
+Helvetica-iso.
+
+=item C<event_size>
+
+The size of the C<event_font> to use.  Defaults to 8.
+
+=item C<event_skip>
+
+Extra space (in points) to leave between lines of event text.  Defaults
+to 2.
+
+=item C<mini_font>
+
+The font to use for mini calendars.  Defaults to Helvetica-iso.
+
+=item C<mini_size>
+
+The size of the C<mini_font> to use.  Defaults to 6.
+
+=item C<mini_skip>
+
+Extra space (in points) to leave between the lines of mini calendars.
+Defaults to 3.
+
+=item C<date_right_margin>
+
+Space (in points) to leave between the date and the gridline.  Defaults to 4.
+
+=item C<date_top_margin>
+
+Space (in points) to leave between the date and the gridline.  Defaults to 2.
+
+=item C<event_margin>
+
+This is used as the default value for C<event_top_margin>,
+C<event_left_margin>, and C<event_right_margin>.
+
+=item C<event_top_margin>
+
+The space (in points) to leave above event text.  Defaults to
+C<event_margin>, or 2 if C<event_margin> is not specified.
+
+=item C<event_left_margin>
+
+The space (in points) to leave to the left of event text.  Defaults
+to C<event_margin>, or 3 if C<event_margin> is not specified.
+
+=item C<event_right_margin>
+
+The space (in points) to leave to the right of event text.  Defaults to
+C<event_margin>, or 2 if C<event_margin> is not specified.
+
+=item C<mini_margin>
+
+This is used as the default value for C<mini_top_margin> and
+C<mini_side_margins>.  Defaults to 4.
+
+=item C<mini_top_margin>
+
+The space (in points) to leave above mini calendars.  Defaults to
+C<mini_margin>.
+
+=item C<mini_side_margins>
+
+The space (in points) to leave on each side of mini calendars.
+Defaults to C<mini_margin>.
+
+=item C<moon_margin>
+
+Space to leave above and to the left of the moon icon.  Defaults to 6.
+
+=item C<shade_days_of_week>
+
+An arrayref of days of the week to be passed to the
+C<shade_days_of_week> method.  (I found it convenient to be able to pass
+this to the constructor instead of making a separate method call.)
+
+=item C<margin>
+
+This is used as the default value for C<top_margin>, C<side_margins>,
+and C<bottom_margin>.
+
+=item C<side_margins>
+
+The space (in points) to leave on each side of the calendar.  Defaults
+to C<margin>, or 24 if C<margin> is not specified.
+
+=item C<top_margin>
+
+The space (in points) to leave above the calendar.  Defaults to
+C<margin>, or 36 if C<margin> is not specified.
+
+=item C<bottom_margin>
+
+The space (in points) to leave below the calendar.  Defaults to
+C<margin>, or 24 if C<margin> is not specified.
+
+=item C<paper>
+
+The paper size to pass to PostScript::File.  Defaults to C<"Letter">.
+Not used if you supply C<ps_file>.
+
+=item C<landscape>
+
+If true, print calendar in landscape mode.  Defaults to false.
+Not used if you supply C<ps_file>.
+
+=item C<ps_file>
+
+Allows you to pass in a PostScript::File (or compatible) object for
+the calendar to use.  By default, a new PostScript::File object is
+created.
+
+=back
+
+=head2 C<< $cal->add_event($date, $message) >>
+
+This prints the text C<$message> on C<$date>, where C<$date> is the
+day of the month.  You may call this multiple times for the same date.
+Messages will be printed in the order they were added.  C<$message>
+may contain newlines to force line breaks.
+
+=head2 C<< $cal->shade($date, ...) >>
+
+This colors the background of the specified date(s) a light gray,
+where C<$date> is the day of the month.  Any number of dates can be
+given.
+
+=head2 C<< $cal->shade_days_of_week($day, ...) >>
+
+This calls C<shade> for all dates that fall on the specified day(s) of
+the week.  Each C<$day> should be 0-7 (where Sunday is either 0 or 7).
+
+=head2 C<< $cal->generate >>
+
+This actually generates the calendar, placing it in the
+PostScript::File object.  You shouldn't need to call this, because
+C<output> calls it automatically.
+
+=head2 C<< $cal->output($filename) >>
+
+This passes its parameters to C<PostScript::File::output> (after
+calling C<generate> if necessary).  Normally, you just pass the
+filename to write.  Note that PostScript::File will append ".ps" to
+the output filename.
+
+=head2 C<< $cal->ps_file >>
+
+This returns the PostScript::File object that C<$cal> is using.  Only
+needed for advanced techniques.
+
+=head1 DIAGNOSTICS
+
+=over
+
+=item C<< WARNING: Event text for YYYY-MM-DD doesn't fit >>
+
+You supplied more event text for the specified date than would fit in
+the box.  You'll have to use a smaller font, smaller margins, or less
+text.
 
 =back
 
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-=for author to fill in:
-    A full explanation of any configuration system(s) used by the
-    module, including the names and locations of any configuration
-    files, and the meaning of any environment variables or properties
-    that can be set. These descriptions must also include details of any
-    configuration language used.
-
 PostScript::Calendar requires no configuration files or environment variables.
 
 
 =head1 DEPENDENCIES
 
-=for author to fill in:
-    A list of all the other modules that this module relies upon,
-    including any restrictions on versions, and an indication whether
-    the module is part of the standard Perl distribution, part of the
-    module's distribution, or must be installed separately. ]
+L<Date::Calc> (5.0 or later), L<Font::AFM>, and L<PostScript::File>.
 
-None.
+If you want to display phases of the moon, you'll need
+L<Astro::MoonPhase> 0.60 or later.
 
 
 =head1 INCOMPATIBILITIES
-
-=for author to fill in:
-    A list of any modules that this module cannot be used in conjunction
-    with. This may be due to name conflicts in the interface, or
-    competition for system or program resources, or due to internal
-    limitations of Perl (for example, many modules that use source code
-    filters are mutually incompatible).
 
 None reported.
 
 
 =head1 BUGS AND LIMITATIONS
 
-=for author to fill in:
-    A list of known problems with the module, together with some
-    indication Whether they are likely to be fixed in an upcoming
-    release. Also a list of restrictions on the features the module
-    does provide: data types that cannot be handled, performance issues
-    and the circumstances in which they may arise, practical
-    limitations on the size of data sets, special cases that are not
-    (yet) handled, etc.
-
 No bugs have been reported.
 
 Please report any bugs or feature requests to
-C<bug-postscript-calendar@rt.cpan.org>, or through the web interface at
-L<http://rt.cpan.org>.
+C<< <bug-PostScript-Calendar AT rt.cpan.org> >>, or through the web interface
+at L<http://rt.cpan.org/Public/Bug/Report.html?Queue=PostScript-Calendar>
 
 
 =head1 AUTHOR
 
-Christopher J. Madsen  C<< <cjm@pobox.com> >>
+Christopher J. Madsen  C<< <perl AT cjmweb.net> >>
 
 
-=head1 LICENCE AND COPYRIGHT
+=head1 LICENSE AND COPYRIGHT
 
-Copyright 2006, Christopher J. Madsen C<< <cjm@pobox.com> >>. All rights reserved.
+Copyright 2007, Christopher J. Madsen. All rights reserved.
 
 This module is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself. See L<perlartistic>.
@@ -961,7 +1181,7 @@ NECESSARY SERVICING, REPAIR, OR CORRECTION.
 
 IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING
 WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MAY MODIFY AND/OR
-REDISTRIBUTE THE SOFTWARE AS PERMITTED BY THE ABOVE LICENCE, BE
+REDISTRIBUTE THE SOFTWARE AS PERMITTED BY THE ABOVE LICENSE, BE
 LIABLE TO YOU FOR DAMAGES, INCLUDING ANY GENERAL, SPECIAL, INCIDENTAL,
 OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OR INABILITY TO USE
 THE SOFTWARE (INCLUDING BUT NOT LIMITED TO LOSS OF DATA OR DATA BEING
