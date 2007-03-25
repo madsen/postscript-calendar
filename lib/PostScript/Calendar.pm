@@ -1149,14 +1149,14 @@ None reported.
 
 No bugs have been reported.
 
-Please report any bugs or feature requests to
-C<< <bug-PostScript-Calendar AT rt.cpan.org> >>, or through the web interface
-at L<http://rt.cpan.org/Public/Bug/Report.html?Queue=PostScript-Calendar>
-
 
 =head1 AUTHOR
 
 Christopher J. Madsen  C<< <perl AT cjmweb.net> >>
+
+Please report any bugs or feature requests to
+C<< <bug-PostScript-Calendar AT rt.cpan.org> >>, or through the web interface
+at L<http://rt.cpan.org/Public/Bug/Report.html?Queue=PostScript-Calendar>
 
 
 =head1 LICENSE AND COPYRIGHT

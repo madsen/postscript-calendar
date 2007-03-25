@@ -9,11 +9,13 @@
 ^Makefile$
 ^README.PL
 ^(?i)TODO.txt
+^\.
 ^announce.txt$
 ^blib/
 ^cjm_
 ^pm_to_blib$
-^PostScript-\d
+^PostScript-Calendar-\d
 ^_build\b
 ^Build$
 ^t/testing/
+example/.*\.ps$
