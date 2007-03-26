@@ -159,6 +159,7 @@ sub new
       top         => $self->{topMar},
       left        => $self->{sideMar},
       right       => $self->{sideMar},
+      title       => psstring($self->{title}),
       reencode    => 'ISOLatin1Encoding',
       font_suffix => '-iso',
       landscape   => $p{landscape},
@@ -522,6 +523,8 @@ sub generate
   my $gridBottom = $dayTop - $dayHeight * @$grid;
   my $gridHeight = $dayTop - $gridBottom + $dayLabelSize + $labelSkip;
   my $gridTop    = $gridBottom + $gridHeight;
+
+  $ps->add_comment(sprintf 'Creator: %s %s', ref($self), $self->VERSION);
 
   $ps->add_to_page(<<"END_PAGE_INIT");
 0 setlinecap
