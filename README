@@ -1,18 +1,12 @@
-PostScript-Calendar version 0.01
+$$Id$
+PostScript::Calendar version $%v%$
 
-[ REPLACE THIS...
+PostScript::Calendar generates printable calendars using PostScript.
 
-  The README is used to introduce the module and provide instructions on
-  how to install the module, any machine dependencies it may have (for
-  example C compilers and installed libraries) and any other information
-  that should be understood before the module is installed.
+PostScript::Calendar uses Date::Calc's *_to_Text functions, so you
+can change the language used by calling Date::Calc's Language
+function before creating your calendar.
 
-  A README file is required for CPAN modules since CPAN extracts the
-  README file from a module distribution so that people browsing the
-  archive can use it get an idea of the modules uses. It is usually a
-  good idea to provide version information here so that people can
-  decide whether fixes for the module are worth downloading.
-]
 
 
 INSTALLATION
@@ -28,12 +22,21 @@ To install this module, run the following commands:
 
 DEPENDENCIES
 
-None.
+  Package           Minimum Version
+  ----------------- ---------------
+  perl               5.6.0
+  Date::Calc         5.0
+  Font::AFM          1.0
+  PostScript::File   1.0
+
+To display phases of the moon:
+  Astro::MoonPhase   0.60
 
 
-COPYRIGHT AND LICENCE
 
-Copyright (C) 2006, Christopher J. Madsen
+COPYRIGHT AND LICENSE
+
+Copyright 2007 Christopher J. Madsen
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
