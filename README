@@ -18,6 +18,9 @@ To install this module, run the following commands:
     ./Build test
     ./Build install
 
+See the CONFIGURATION AND ENVIRONMENT section of the documentation for
+some tips on getting Font::AFM properly configured.
+
 
 
 DEPENDENCIES

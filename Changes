@@ -1,4 +1,11 @@
 Revision history for PostScript::Calendar
 
+0.02   Apr 4 2007
+	- Setting title to the empty string now suppresses the title (RT#26089)
+	- Bug fixes:
+	  - add_event didn't respect newlines as documented
+	  - label_font was ignored
+	- Documentation fixes
+
 0.01   Mar 25 2007
 	- Initial release

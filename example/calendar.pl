@@ -70,10 +70,10 @@ calendar.pl - Generate a monthly calendar in PostScript
 
 =head1 SYNOPSIS
 
-Usage:  calendar.pl [options] YEAR MONTH [PARAMETER VALUE ...]
-  -o, --output=NAME  Save calendar to NAME.ps (default YEAR-MONTH)
-  -?, --help         Display this usage information and exit
-      --version      Display version number and exit
+ Usage:  calendar.pl [options] YEAR MONTH [PARAMETER VALUE ...]
+   -o, --output=NAME  Save calendar to NAME.ps (default YEAR-MONTH)
+   -?, --help         Display this usage information and exit
+       --version      Display version number and exit
 
 =head1 DESCRIPTION
 
@@ -104,7 +104,7 @@ at L<http://rt.cpan.org/Public/Bug/Report.html?Queue=PostScript-Calendar>
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright 2007, Christopher J. Madsen. All rights reserved.
+Copyright 2007 Christopher J. Madsen. All rights reserved.
 
 This module is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself. See L<perlartistic>.
