@@ -29,7 +29,7 @@ use Font::AFM;
 #=====================================================================
 # Package Global Variables:
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';  # Also update VERSION section in documentation
 
 our @phaseName = qw(NewMoon FirstQuarter FullMoon LastQuarter);
 
@@ -91,8 +91,8 @@ sub Add_Delta_M
 # This is one time subroutine prototypes are useful:
 ## no critic (ProhibitSubroutinePrototypes)
 
-sub evTxt () { 0 }
-sub evPS  () { 1 }
+sub evTxt        () { 0 }
+sub evPS         () { 1 }
 sub evBackground () { 2 }
 sub evTopMargin  () { 3 }
 
@@ -113,7 +113,8 @@ sub new
     dayHeight => $p{day_height},
     mini      => $p{mini_calendars},
     phases    => $p{phases},
-    title     => ($p{title} || sprintf '%s %d', Month_to_Text($month), $year),
+    title     => firstdef($p{title},
+                          sprintf '%s %d', Month_to_Text($month), $year),
     days      => ($p{days} || [ 0 .. 6 ]), # Sun .. Sat
     year      => $year,
     month     => $month,
@@ -151,6 +152,11 @@ sub new
   $self->{dayNames} =
       ($p{day_names} or
        [ map { Day_of_Week_to_Text($_ % 7 || 7) } @$days ]);
+
+  if (not length $self->{title}) {
+    $self->{titleSize} = 0;
+    $self->{titleSkip} = 0;
+  } # end if title is suppressed
 
   unless ($self->{psFile}) {
     require PostScript::File;
@@ -241,7 +247,7 @@ sub add_event
 {
   my ($self, $date, $message) = @_;
 
-  push @{$self->{events}[$date][evTxt]}, $message;
+  push @{$self->{events}[$date][evTxt]}, split(/[ \t]*\n/, $message);
 } # end add_event
 
 #---------------------------------------------------------------------
@@ -285,10 +291,11 @@ sub print_calendar
 
   my $ps = $self->{psFile};
 
-  $ps->add_to_page( <<"END_TITLE" );
+  $ps->add_to_page( <<"END_TITLE" ) if length($p{title});
 $p{titleFont}$p{midpoint} $p{titleY} $S{$p{title}} showcenter
-$p{labelFont}
 END_TITLE
+
+  $ps->add_to_page("$p{labelFont}\n");
 
   my ($dayHeight, $dayWidth, $dateStartX)
       = @p{qw(dayHeight dayWidth dateStartX)};
@@ -448,8 +455,8 @@ sub wrap_events
 
       $next = '';
       while (($metrics->stringwidth($_, $eventSize) > $width) and
-             (s/-([^- \t\n]+-*)$/-/ or
-              s/([ \t\n]+[^- \t\n]*-*)$// or
+             (s/-([^- \t]+-*)$/-/ or
+              s/([ \t]+[^- \t]*-*)$// or
               s/(.)$//)) {
         $next = $1 . $next;
       } # end while string too wide
@@ -538,6 +545,8 @@ END_PAGE_INIT
 /DayWidth $dayWidth def
 /TitleSize $titleSize def
 /TitleFont /$self->{titleFont} findfont TitleSize scalefont def
+/LabelSize $dayLabelSize def
+/LabelFont /$self->{labelFont} findfont LabelSize scalefont def
 /DateSize $self->{dateSize} def
 /DateFont /$self->{dateFont} findfont DateSize scalefont def
 /EventSize $self->{eventSize} def
@@ -766,7 +775,7 @@ END_SPLIT_LINE
 
   $self->print_calendar($grid,
     titleFont  => "TitleFont setfont\n",
-    labelFont  => '',
+    labelFont  => "LabelFont setfont\n",
     dateFont   => "DateFont setfont\n",
     midpoint   => $midpoint,
     midday     => $midday,
@@ -837,7 +846,7 @@ PostScript::Calendar - Generate a monthly calendar in PostScript
 
 =head1 VERSION
 
-This document describes PostScript::Calendar version 0.01
+This document describes PostScript::Calendar version 0.02
 
 
 =head1 SYNOPSIS
@@ -870,7 +879,8 @@ All dimensions are specified in PostScript points (72 per inch).
 This constructs a new PostScript::Calendar object for C<$year> and C<$month>.
 
 There are a large number of parameters you can pass to customize how
-the calendar is displayed.  They are all passed as C<< name => value >> pairs.
+the calendar is displayed.  They are all passed as S<< C<< name => value >> >>
+pairs.
 
 =over
 
@@ -903,25 +913,27 @@ The default is a false value (which means no mini calendars).
 
 =item C<phases>
 
-If true, the phase of the moon icons are printed.  The default is false.
+If true, the phase of the moon icons are printed (requires
+Astro::MoonPhase 0.60).  The default is false.
 
 =item C<title>
 
 The title to be printed at the top of the calendar.  The default is
 "Month YEAR" (where Month comes from Month_to_Text, and YEAR is
-numeric.)
+numeric.)  Setting this to the empty string automatically sets
+C<title_size> and C<title_skip> to 0 (completely suppressing the title).
 
 =item C<days>
 
 An arrayref specifying the days of the week to be included in the
 calendar.  The first day must be in the range 0 to 6 (where Sunday is
 0, Monday is 1, etc.).  Subsequent days must be in ascending order, up
-to the initial day + 6.The default is C<[ 0 .. 6 ]> (meaning Sunday
-thru Saturday).  Other popular values are C<[ 1 .. 7 ]> for Monday
-thru Sunday or C<[ 1 .. 5 ]> for Monday thru Friday (no weekends).
+to the initial day + 6.The default is S<C<[ 0 .. 6 ]>> (meaning Sunday
+thru Saturday).  Other popular values are S<C<[ 1 .. 7 ]>> for Monday
+thru Sunday or S<C<[ 1 .. 5 ]>> for Monday thru Friday (no weekends).
 
 You may skip over days if you don't want them included.  For example,
-C<[ 3, 5, 8 ]> would display Wednesday, Friday, and Monday (with weeks
+S<C<[ 3, 5, 8 ]>> would display Wednesday, Friday, and Monday (with weeks
 starting on Wednesday).
 
 =item C<day_names>
@@ -1134,6 +1146,20 @@ text.
 
 PostScript::Calendar requires no configuration files or environment variables.
 
+However, it uses L<Font::AFM>, and unfortunately that's difficult to
+configure properly.  I wound up creating symlinks in
+C</usr/local/lib/afm/> (which is one of the default paths that
+Font::AFM searches if you don't have a C<METRICS> environment
+variable):
+
+ Helvetica.afm         -> /usr/share/fonts/afms/adobe/phvr8a.afm
+ Helvetica-Oblique.afm -> /usr/share/fonts/afms/adobe/phvro8a.afm
+
+Paths on your system may vary.  I suggest searching for C<.afm> files,
+and then grepping them for "FontName Helvetica".  Helvetica and
+Helvetica-Oblique are the two fonts that PostScript::Calendar uses by
+default, and Font::AFM expects to find files named F<Helvetica.afm>
+and F<Helvetica-Oblique.afm>.
 
 =head1 DEPENDENCIES
 
@@ -1164,7 +1190,7 @@ at L<http://rt.cpan.org/Public/Bug/Report.html?Queue=PostScript-Calendar>
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright 2007, Christopher J. Madsen. All rights reserved.
+Copyright 2007 Christopher J. Madsen. All rights reserved.
 
 This module is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself. See L<perlartistic>.
