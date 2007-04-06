@@ -1,5 +1,8 @@
 Revision history for PostScript::Calendar
 
+0.03   Apr 5 2007
+	- Round dimensions to integers to avoid subtle errors (RT#26090)
+
 0.02   Apr 4 2007
 	- Setting title to the empty string now suppresses the title (RT#26089)
 	- Bug fixes:

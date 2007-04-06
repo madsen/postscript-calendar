@@ -29,7 +29,7 @@ use Font::AFM;
 #=====================================================================
 # Package Global Variables:
 
-our $VERSION = '0.02';  # Also update VERSION section in documentation
+our $VERSION = '0.03';  # Also update VERSION section in documentation
 
 our @phaseName = qw(NewMoon FirstQuarter FullMoon LastQuarter);
 
@@ -75,6 +75,14 @@ sub firstdef
 } # end firstdef
 
 #---------------------------------------------------------------------
+# Round to an integer, but preserve undef:
+
+sub round
+{
+  defined $_[0] ? sprintf('%d', $_[0]) : $_[0];
+} # end round
+
+#---------------------------------------------------------------------
 # Add delta months:
 #
 # ($year, $month) = Add_Delta_M($year, $month, $delta_months);
@@ -110,7 +118,7 @@ sub new
     psFile    => $p{ps_file},
     condense  => $p{condense},
     border    => firstdef($p{border}, 1),
-    dayHeight => $p{day_height},
+    dayHeight => round($p{day_height}),
     mini      => $p{mini_calendars},
     phases    => $p{phases},
     title     => firstdef($p{title},
@@ -118,15 +126,15 @@ sub new
     days      => ($p{days} || [ 0 .. 6 ]), # Sun .. Sat
     year      => $year,
     month     => $month,
-    sideMar   => firstdef($p{side_margins},  $p{margin}, 24),
-    topMar    => firstdef($p{top_margin},    $p{margin}, 36),
-    botMar    => firstdef($p{bottom_margin}, $p{margin}, 24),
+    sideMar   => round(firstdef($p{side_margins},  $p{margin}, 24)),
+    topMar    => round(firstdef($p{top_margin},    $p{margin}, 36)),
+    botMar    => round(firstdef($p{bottom_margin}, $p{margin}, 24)),
     titleFont => $p{title_font} || 'Helvetica-iso',
     titleSize => $p{title_size} || 14,
-    titleSkip => firstdef($p{title_skip}, 5),
+    titleSkip => round(firstdef($p{title_skip}, 5)),
     labelFont => $p{label_font} || $p{title_font} || 'Helvetica-iso',
     labelSize => $p{label_size} || $p{title_size} || 14,
-    labelSkip => firstdef($p{label_skip}, $p{title_skip}, 5),
+    labelSkip => round(firstdef($p{label_skip}, $p{title_skip}, 5)),
     dateFont  => $p{date_font} || 'Helvetica-Oblique-iso',
     dateSize  => $p{date_size} || $p{title_size} || 14,
     eventFont => $p{event_font} || 'Helvetica-iso',
@@ -486,7 +494,7 @@ sub generate
 
   ($width, $height) = ($height, $width) if $landscape;
 
-  my $dayWidth = int(($width - 2 * $sideMar) / @$days);
+  my $dayWidth = round(($width - 2 * $sideMar) / @$days);
   my $midday   = $dayWidth / 2;
   my $gridWidth = $dayWidth * @$days;
   my $leftEdge = $sideMar;
@@ -522,7 +530,7 @@ sub generate
     $grid->[$next[0]][$next[1]] = [calendar => Add_Delta_M($year, $month,  1)];
   } # end if mini calendars
 
-  my $dayHeight = int(($dayTop - $botMar) / @$grid);
+  my $dayHeight = round(($dayTop - $botMar) / @$grid);
   if ($dayHeight > ($self->{dayHeight} || $dayHeight)) {
     $dayHeight = $self->{dayHeight};
   }
@@ -846,7 +854,7 @@ PostScript::Calendar - Generate a monthly calendar in PostScript
 
 =head1 VERSION
 
-This document describes PostScript::Calendar version 0.02
+This document describes PostScript::Calendar version 0.03
 
 
 =head1 SYNOPSIS

@@ -11,7 +11,7 @@ plan skip_all => "Test::Pod::Coverage 1.04 required for testing POD coverage"
 
 my @private = map { qr/^$_/ } qw(
   Add_Delta_ calc_ compute_ ev[A-Z] firstdef get_metrics
-  print_ psstring wrap_events
+  print_ psstring round wrap_events
 );
 
 all_pod_coverage_ok({
