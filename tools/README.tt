@@ -1,5 +1,6 @@
-$$Id$
-PostScript::Calendar version $%v%$
+[% # $Id$ %]
+PostScript::Calendar version [%version%], released [%date%]
+
 
 PostScript::Calendar generates printable calendars using PostScript.
 
@@ -34,6 +35,14 @@ DEPENDENCIES
 
 To display phases of the moon:
   Astro::MoonPhase   0.60
+
+
+
+CHANGES
+    Here's what's new in version [%version%] of PostScript::Calendar:
+    (See the file "Changes" for the full revision history.)
+
+[%changes%]
 
 
 

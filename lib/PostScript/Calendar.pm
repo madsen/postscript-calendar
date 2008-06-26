@@ -29,7 +29,7 @@ use Font::AFM;
 #=====================================================================
 # Package Global Variables:
 
-our $VERSION = '0.03';  # Also update VERSION section in documentation
+our $VERSION = '0.04';
 
 our @phaseName = qw(NewMoon FirstQuarter FullMoon LastQuarter);
 
@@ -854,7 +854,7 @@ PostScript::Calendar - Generate a monthly calendar in PostScript
 
 =head1 VERSION
 
-This document describes PostScript::Calendar version 0.03
+This document describes $Id$
 
 
 =head1 SYNOPSIS
@@ -1166,8 +1166,8 @@ variable):
 Paths on your system may vary.  I suggest searching for C<.afm> files,
 and then grepping them for "FontName Helvetica".  Helvetica and
 Helvetica-Oblique are the two fonts that PostScript::Calendar uses by
-default, and Font::AFM expects to find files named F<Helvetica.afm>
-and F<Helvetica-Oblique.afm>.
+default, and Font::AFM expects to find files named C<Helvetica.afm>
+and C<Helvetica-Oblique.afm>.
 
 =head1 DEPENDENCIES
 
@@ -1192,8 +1192,9 @@ No bugs have been reported.
 Christopher J. Madsen  C<< <perl AT cjmweb.net> >>
 
 Please report any bugs or feature requests to
-C<< <bug-PostScript-Calendar AT rt.cpan.org> >>, or through the web interface
-at L<http://rt.cpan.org/Public/Bug/Report.html?Queue=PostScript-Calendar>
+S<< C<< <bug-PostScript-Calendar AT rt.cpan.org> >> >>,
+or through the web interface at
+L<http://rt.cpan.org/Public/Bug/Report.html?Queue=PostScript-Calendar>
 
 
 =head1 LICENSE AND COPYRIGHT

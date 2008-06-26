@@ -1,14 +1,21 @@
 Revision history for PostScript::Calendar
 
-0.03   Apr 5 2007
+0.04   June 25, 2007
+	- No functional changes
+	- Minor clean up to documentation
+	- Exclude ProhibitAccessOfPrivateData from perlcritic.t
+	- Skip perlcritic.t under AUTOMATED_TESTING
+	- Use Module::Build::DistVersion for packaging
+
+0.03   April 5, 2007
 	- Round dimensions to integers to avoid subtle errors (RT#26090)
 
-0.02   Apr 4 2007
+0.02   April 4, 2007
 	- Setting title to the empty string now suppresses the title (RT#26089)
 	- Bug fixes:
 	  - add_event didn't respect newlines as documented
 	  - label_font was ignored
 	- Documentation fixes
 
-0.01   Mar 25 2007
+0.01   March 25, 2007
 	- Initial release
