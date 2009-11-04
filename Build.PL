@@ -21,10 +21,10 @@ my $builder = My_Build->new(
   dist_author        => 'Christopher J. Madsen <perl@cjmweb.net>',
   dist_version_from  => 'lib/PostScript/Calendar.pm',
   requires => {
-      'perl'             => '5.6.0',
+      'perl'             => '5.8.0', # PostScript::File 1.03 requires this
       'Date::Calc'       => '5.0',
       'Font::AFM'        => 1,
-      'PostScript::File' => 1,
+      'PostScript::File' => '1.03', # Need pstr
   },
   recommends => {
       'Astro::MoonPhase' => '0.60',

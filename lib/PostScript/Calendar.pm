@@ -25,6 +25,7 @@ use Carp;
 use Date::Calc qw(Add_Delta_YM Day_of_Week Day_of_Week_to_Text
                   Days_in_Month Localtime Mktime Month_to_Text);
 use Font::AFM;
+use PostScript::File qw(pstr);
 
 #=====================================================================
 # Package Global Variables:
@@ -44,23 +45,7 @@ our @phaseName = qw(NewMoon FirstQuarter FullMoon LastQuarter);
 
 our (%E, %S);
 tie %E, 'PostScript::Calendar::Interpolation', sub { $_[0] }; # eval
-tie %S, 'PostScript::Calendar::Interpolation', \&psstring;    # quoted string
-
-#---------------------------------------------------------------------
-# Create a properly quoted PostScript string:
-
-my %special = (
-  "\n" => '\n', "\r" => '\r', "\t" => '\t', "\b" => '\b',
-  "\f" => '\f', "\\" => '\\', "("  => '\(', ")"  => '\)',
-);
-my $specialKeys = join '', keys %special;
-
-sub psstring
-{
-  my $string = $_[0];
-  $string =~ s/([$specialKeys])/$special{$1}/go;
-  "($string)";
-} # end psstring
+tie %S, 'PostScript::Calendar::Interpolation', \&pstr; # quoted string
 
 #---------------------------------------------------------------------
 # Return the first defined value:
@@ -167,13 +152,12 @@ sub new
   } # end if title is suppressed
 
   unless ($self->{psFile}) {
-    require PostScript::File;
     $self->{psFile} = PostScript::File->new(
       paper       => ($p{paper} || 'Letter'),
       top         => $self->{topMar},
       left        => $self->{sideMar},
       right       => $self->{sideMar},
-      title       => psstring($self->{title}),
+      title       => pstr($self->{title}),
       reencode    => 'ISOLatin1Encoding',
       font_suffix => '-iso',
       landscape   => $p{landscape},
@@ -476,7 +460,7 @@ sub wrap_events
     } # end for this event string
   } # end for each event
 
-  join("\n", map { psstring($_) } @$events);
+  join("\n", map { pstr($_) } @$events);
 } # end wrap_events
 
 #---------------------------------------------------------------------
