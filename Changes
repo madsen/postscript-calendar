@@ -1,5 +1,9 @@
 Revision history for PostScript::Calendar
 
+0.05   NOT
+	- Now possible to include multiple calendars in one PostScript file
+	- PostScript::File 1.03 now provides pstr
+
 0.04   June 25, 2008
 	- No functional changes
 	- Minor clean up to documentation

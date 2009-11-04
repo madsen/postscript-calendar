@@ -18,7 +18,7 @@ package PostScript::Calendar;
 # Generate a PostScript calendar
 #---------------------------------------------------------------------
 
-use 5.006;
+use 5.008;
 use warnings;
 use strict;
 use Carp;
@@ -30,7 +30,7 @@ use PostScript::File qw(pstr);
 #=====================================================================
 # Package Global Variables:
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 our @phaseName = qw(NewMoon FirstQuarter FullMoon LastQuarter);
 
