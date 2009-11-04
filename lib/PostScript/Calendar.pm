@@ -529,10 +529,7 @@ sub generate
 0 setlinecap
 0 setlinejoin
 3 pixel setlinewidth
-END_PAGE_INIT
 
-  unless ($ps->has_function('PostScript_Calendar'))
-  { $ps->add_function('PostScript_Calendar', <<"END_FUNCTIONS") }
 /DayHeight $dayHeight def
 /DayWidth $dayWidth def
 /TitleSize $titleSize def
@@ -546,7 +543,10 @@ END_PAGE_INIT
 /EventSpacing $E{$self->{eventSize} + $self->{eventSkip}} def
 /MiniSize $self->{miniSize} def
 /MiniFont /$self->{miniFont} findfont MiniSize scalefont def
+END_PAGE_INIT
 
+  unless ($ps->has_function('PostScript_Calendar'))
+  { $ps->add_function('PostScript_Calendar', <<'END_FUNCTIONS') }
 /pixel {72 mul 300 div} bind def % 300 dpi only
 
 %---------------------------------------------------------------------
@@ -647,7 +647,7 @@ END_PAGE_INIT
     show
   } forall
   pop pop        % pop off X & Y
-} def
+} bind def
 
 %---------------------------------------------------------------------
 % Fill a day rect with the current ink:
@@ -661,7 +661,7 @@ END_PAGE_INIT
   0 DayHeight lineto
   closepath
   fill
-} def
+} bind def
 
 %---------------------------------------------------------------------
 % Shade a day with the default background:
@@ -685,10 +685,10 @@ END_FUNCTIONS
       $phase = ($phase + 1) % 4;
     } # end while @dates
 
-    unless ($ps->has_function('PostScript_Calendar_Moon'))
-    { $ps->add_function('PostScript_Calendar_Moon', <<"END_MOON_FUNCTIONS") }
-/MoonMargin $self->{moonMargin} def
+    $ps->add_to_page("/MoonMargin $self->{moonMargin} def\n");
 
+    unless ($ps->has_function('PostScript_Calendar_Moon'))
+    { $ps->add_function('PostScript_Calendar_Moon', <<'END_MOON_FUNCTIONS') }
 %---------------------------------------------------------------------
 % Show the phase of the moon:  PHASE ShowPhase
 
@@ -702,7 +702,7 @@ END_FUNCTIONS
   0 360 arc
   closepath
   cvx exec
-} def
+} bind def
 
 /NewMoon { fill } bind def
 /FullMoon { gsave 1 setgray fill grestore stroke } bind def
@@ -716,7 +716,7 @@ END_FUNCTIONS
   DateSize 2 div
   90 270 arc
   closepath fill
-} def
+} bind def
 
 /LastQuarter
 {
@@ -727,7 +727,7 @@ END_FUNCTIONS
   DateSize 2 div
   270 90 arc
   closepath fill
-} def
+} bind def
 END_MOON_FUNCTIONS
   } # end if showing phases of the moon
 
