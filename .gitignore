@@ -1,0 +1,11 @@
+/blib/
+/META.yml
+/MYMETA.yml
+/.build/
+/_build/
+Build
+Makefile
+/pm_to_blib
+PostScript-Calendar-*.tar.gz
+PostScript-Calendar-*/
+/test-results/
