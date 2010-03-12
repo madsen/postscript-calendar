@@ -1,9 +1,9 @@
 #! /usr/bin/perl
 #---------------------------------------------------------------------
-# $Id$
+# Build.PL for PostScript-Calendar
+#
 # Copyright 2006 Christopher J. Madsen
 #
-# Build.PL for PostScript-Calendar
 #---------------------------------------------------------------------
 
 use strict;

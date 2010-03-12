@@ -1,5 +1,4 @@
 #---------------------------------------------------------------------
-# $Id$
 package My_Build;
 #
 # Copyright 2007 Christopher J. Madsen

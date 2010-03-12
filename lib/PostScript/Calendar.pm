@@ -5,7 +5,6 @@ package PostScript::Calendar;
 #
 # Author: Christopher J. Madsen <perl@cjmweb.net>
 # Created: Sat Nov 25 14:32:55 2006
-# $Id$
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the same terms as Perl itself.
