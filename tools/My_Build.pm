@@ -21,17 +21,12 @@ use strict;
 use File::Spec ();
 use Module::Build ();
 
-# Use Module::Build::DistVersion if we can get it:
-BEGIN {
-  eval q{ use base 'Module::Build::DistVersion'; };
-  eval q{ use base 'Module::Build'; } if $@;
-  die $@ if $@;
-}
+use base 'Module::Build';
 
 #=====================================================================
 # Package Global Variables:
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 #=====================================================================
 
@@ -56,22 +51,6 @@ END Astro::MoonPhase
 
   return $out;
 } # end prereq_failures
-
-#---------------------------------------------------------------------
-sub ACTION_distdir
-{
-  my $self = shift @_;
-
-  print STDERR <<"END" unless $self->isa('Module::Build::DistVersion');
-\a\a\a\n
-Win32-IPC uses Module::Build::DistVersion to automatically copy
-version numbers to the appropriate places.  You might want to install
-that and re-run Build.PL if you intend to create a distribution.
-\n
-END
-
-  $self->SUPER::ACTION_distdir(@_);
-} # end ACTION_distdir
 
 #=====================================================================
 # Package Return Value:

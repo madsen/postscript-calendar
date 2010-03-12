@@ -7,6 +7,7 @@
 ^\#
 ^MANIFEST\.
 ^Makefile$
+^MYMETA.yml
 ^README.PL
 ^(?i)TODO.txt
 ^\.
@@ -17,5 +18,7 @@
 ^PostScript-Calendar-\d
 ^_build\b
 ^Build$
+^dist\.ini$
 ^t/testing/
 example/.*\.ps$
+^tools/loom\.pl

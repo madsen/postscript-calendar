@@ -1,14 +1,15 @@
 Build.PL
 Changes
+LICENSE
+MANIFEST
+META.yml
+README
 example/calendar.pl
 lib/PostScript/Calendar.pm
-Makefile.PL
-MANIFEST
-META.yml			# Will be created by "make dist"
-README
 t/00.load.t
 t/perlcritic.t
 t/pod-coverage.t
 t/pod.t
+t/release-pod-coverage.t
+t/release-pod-syntax.t
 tools/My_Build.pm
-tools/README.tt

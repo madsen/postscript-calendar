@@ -2,7 +2,7 @@
 #---------------------------------------------------------------------
 # Build.PL for PostScript-Calendar
 #
-# Copyright 2006 Christopher J. Madsen
+# Copyright 2010 Christopher J. Madsen
 #
 #---------------------------------------------------------------------
 
@@ -20,23 +20,9 @@ my $builder = My_Build->new(
   license            => 'perl',
   dist_author        => 'Christopher J. Madsen <perl@cjmweb.net>',
   dist_version_from  => 'lib/PostScript/Calendar.pm',
-  requires => {
-      'perl'             => '5.8.0', # PostScript::File 1.03 requires this
-      'Date::Calc'       => '5.0',
-      'Font::AFM'        => 1,
-      'PostScript::File' => '1.03', # Need pstr
-  },
-  recommends => {
-      'Astro::MoonPhase' => '0.60',
-  },
-  build_requires => {
-      'FindBin'          => 0,
-      'Module::Build'    => '0.21',
-      'Test::More'       => 0,
-  },
-  create_makefile_pl => 'passthrough',
   dynamic_config     => 0,
-  meta_merge         => { no_index  => { directory => [ 'tools' ] }},
+  # Prerequisites inserted by DistZilla:
+#{{ $plugin->get_prereqs #}}
 );
 
 $builder->create_build_script();

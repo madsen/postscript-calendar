@@ -1,4 +1,4 @@
-PostScript::Calendar version [%version%], released [%date%]
+PostScript::Calendar version {{$version}}, released {{$date}}
 
 
 PostScript::Calendar generates printable calendars using PostScript.
@@ -27,7 +27,7 @@ DEPENDENCIES
 
   Package           Minimum Version
   ----------------- ---------------
-  perl               5.6.0
+  perl               5.8.0
   Date::Calc         5.0
   Font::AFM          1.0
   PostScript::File   1.0
@@ -38,16 +38,15 @@ To display phases of the moon:
 
 
 CHANGES
-    Here's what's new in version [%version%] of PostScript::Calendar:
+    Here's what's new in version {{$version}} of PostScript::Calendar:
     (See the file "Changes" for the full revision history.)
 
-[%changes%]
-
+{{$changes}}
 
 
 COPYRIGHT AND LICENSE
 
-Copyright 2007 Christopher J. Madsen
+Copyright 2010 Christopher J. Madsen
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
