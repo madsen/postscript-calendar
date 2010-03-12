@@ -4,6 +4,7 @@ Revision history for PostScript::Calendar
 	- Now possible to include multiple calendars in one PostScript file
 	- PostScript::File 2.00 now provides pstr and metrics
 	  Font::AFM is no longer required!
+	- The ps_file method actually works now
 
 0.04   June 25, 2008
 	- No functional changes
