@@ -18,23 +18,27 @@ To install this module, run the following commands:
     ./Build test
     ./Build install
 
-See the CONFIGURATION AND ENVIRONMENT section of the documentation for
-some tips on getting Font::AFM properly configured.
-
 
 
 DEPENDENCIES
 
   Package           Minimum Version
   ----------------- ---------------
-  perl               5.8.0
-  Date::Calc         5.0
-  Font::AFM          1.0
-  PostScript::File   1.0
+{{
+  my $requires = $meta{requires};
 
+  foreach my $req ('perl', sort grep { $_ ne 'perl' } keys %$requires) {
+    $OUT .= sprintf("  %-18s %s\n", $req, $requires->{$req});
+  }
+}}
 To display phases of the moon:
-  Astro::MoonPhase   0.60
+{{
+  my $recommends = $meta{recommends};
 
+  foreach my $rec (sort keys %$recommends) {
+    $OUT .= sprintf("  %-18s %s\n", $rec, $recommends->{$rec});
+  }
+}}
 
 
 CHANGES

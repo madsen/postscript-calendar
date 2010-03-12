@@ -24,7 +24,7 @@ use Carp;
 use Date::Calc qw(Add_Delta_YM Day_of_Week Day_of_Week_to_Text
                   Days_in_Month Localtime Mktime Month_to_Text);
 use Font::AFM;
-use PostScript::File qw(pstr);
+use PostScript::File 2.01;
 
 #=====================================================================
 # Package Global Variables:
@@ -42,9 +42,10 @@ our @phaseName = qw(NewMoon FirstQuarter FullMoon LastQuarter);
   sub FETCH   { $_[0]->($_[1]) }
 } # end PostScript::Calendar::Interpolation
 
-our (%E, %S);
+our (%E, %S, $psFile);
 tie %E, 'PostScript::Calendar::Interpolation', sub { $_[0] }; # eval
-tie %S, 'PostScript::Calendar::Interpolation', \&pstr; # quoted string
+# quoted string:
+tie %S, 'PostScript::Calendar::Interpolation', sub { $psFile->pstr(shift) };
 
 #---------------------------------------------------------------------
 # Return the first defined value:
@@ -151,14 +152,20 @@ sub new
   } # end if title is suppressed
 
   unless ($self->{psFile}) {
+    my %font;
+    while (my ($k, $v) = each %$self) {
+      next unless $k =~ /Font$/;
+      $font{ $v =~ /^(.+)-iso$/ ? $1 : $v } = 1;
+    }
+
     $self->{psFile} = PostScript::File->new(
       paper       => ($p{paper} || 'Letter'),
       top         => $self->{topMar},
       left        => $self->{sideMar},
       right       => $self->{sideMar},
-      title       => pstr($self->{title}),
-      reencode    => 'ISOLatin1Encoding',
-      font_suffix => '-iso',
+      title       => PostScript::File->pstr($self->{title}),
+      reencode    => 'cp1252',
+      need_fonts  => [ keys %font ],
       landscape   => $p{landscape},
     );
   }
@@ -223,14 +230,10 @@ sub compute_grid
 #---------------------------------------------------------------------
 sub get_metrics
 {
-  my ($self, $font) = @_;
-  $font =~ s/-iso$//;
+  my ($self, $font, $size) = @_;
 
-  my $metrics = $self->{fontCache}{$font};
-
-  return $metrics if $metrics;
-
-  $self->{fontCache}{$font} = Font::AFM->new($font);
+  $self->{fontCache}{$font}{$size}
+      ||= $self->{psFile}->get_metrics($font, $size);
 } # end get_metrics
 
 #---------------------------------------------------------------------
@@ -280,7 +283,8 @@ sub print_calendar
 {
   my ($self, $grid, %p) = @_;
 
-  my $ps = $self->{psFile};
+  # Must set $psFile for interpolation
+  local $psFile = my $ps = $self->{psFile};
 
   $ps->add_to_page( <<"END_TITLE" ) if length($p{title});
 $p{titleFont}$p{midpoint} $p{titleY} $S{$p{title}} showcenter
@@ -338,8 +342,8 @@ sub print_mini_calendar
   my $linespacing = $fontsize + $self->{miniSkip};
   my $sideMar     = $self->{miniSideMar};
 
-  my $font = $self->get_metrics($self->{miniFont});
-  my $numWidth = $font->stringwidth('22', $fontsize);
+  my $font = $self->get_metrics($self->{miniFont}, $fontsize);
+  my $numWidth = $font->width('22');
 
   my $colSpacing = (($cols > 1)
                     ? ($width - 2 * $sideMar - $cols * $numWidth) / ($cols - 1)
@@ -413,8 +417,9 @@ sub wrap_events
 {
   my ($self, $y, $width, $height, $events, $date) = @_;
 
-  my $metrics      = $self->get_metrics($self->{eventFont});
+  my $ps           = $self->{psFile};
   my $eventSize    = $self->{eventSize};
+  my $metrics      = $self->get_metrics($self->{eventFont}, $eventSize);
   my $eventSpacing = $eventSize + $self->{eventSkip};
 
   my $dateSize   = $self->{dateSize};
@@ -423,9 +428,9 @@ sub wrap_events
   my $fullWidth = ($width -= $self->{eventLeftMar} + $self->{eventRightMar});
 
   if ($y > $dateBottom) {
-    my $dateMetrics = $self->get_metrics($self->{dateFont});
+    my $dateMetrics = $self->get_metrics($self->{dateFont}, $dateSize);
 
-    $width -= ($dateMetrics->stringwidth($date, $dateSize) +
+    $width -= ($dateMetrics->width($date) +
                $self->{dateRightMar});
   }
 
@@ -445,7 +450,7 @@ sub wrap_events
       s/\s+$//;                 # Remove trailing space, if any
 
       $next = '';
-      while (($metrics->stringwidth($_, $eventSize) > $width) and
+      while (($metrics->width($_) > $width) and
              (s/-([^- \t]+-*)$/-/ or
               s/([ \t]+[^- \t]*-*)$// or
               s/(.)$//)) {
@@ -459,7 +464,7 @@ sub wrap_events
     } # end for this event string
   } # end for each event
 
-  join("\n", map { pstr($_) } @$events);
+  join("\n", map { $ps->pstr($_) } @$events);
 } # end wrap_events
 
 #---------------------------------------------------------------------
