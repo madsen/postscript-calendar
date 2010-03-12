@@ -1,4 +1,5 @@
 /blib/
+/example/*.ps
 /META.yml
 /MYMETA.yml
 /.build/
