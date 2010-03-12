@@ -23,16 +23,16 @@ use PostScript::Calendar;
 #---------------------------------------------------------------------
 Getopt::Long::Configure(qw(bundling no_getopt_compat));
 
-my $output;
+my ($output, $year);
 
 Getopt::Long::GetOptions(
     'output|o=s'   => \$output,
+    'year|y=s'     => \$year,
     'help|?'       => \&usage,
     'version'      => \&usage
 ) or usage();
 
-usage() if @ARGV < 2;
-$output = sprintf "%04d-%02d", @ARGV unless defined $output;
+usage() if not $year and @ARGV < 2;
 
 sub usage
 {
@@ -40,7 +40,9 @@ sub usage
     exit if $_[0] and $_[0] eq 'version';
     print "\n" . <<'';
 Usage:  calendar.pl [options] YEAR MONTH [PARAMETER VALUE ...]
+        calendar.pl --year=YEAR [PARAMETER VALUE ...]
   -o, --output=NAME  Save calendar to NAME.ps (default YEAR-MONTH)
+  -y, --year=YEAR    Make a calendar for each month of YEAR
   -?, --help         Display this usage information and exit
       --version      Display version number and exit
 
@@ -57,10 +59,32 @@ foreach (@ARGV) {
 } # end foreach @ARGV
 
 #---------------------------------------------------------------------
-my $cal = PostScript::Calendar->new(@ARGV);
+if ($year) {
+  # Create one page for each month in a full year:
+  $output = sprintf "%04d", $year unless defined $output;
 
-print "Saving $output.ps...\n";
-$cal->output($output);
+  my $ps;
+  for my $month (1 .. 12) {
+    $ps->newpage if $ps;
+    my $cal = PostScript::Calendar->new($year, $month, @ARGV,
+                                        ($ps ? (ps_file => $ps) : ()));
+    $cal->generate;
+    # We get the PostScript::File from the first calendar,
+    # and pass that to the remaining calendars:
+    $ps ||= $cal->ps_file;
+  } # end for $month 1 to 12
+
+  print "Saving $output.ps...\n";
+  $ps->output($output);
+} else {
+  # Make a calendar for just one month:
+  $output = sprintf "%04d-%02d", @ARGV unless defined $output;
+
+  my $cal = PostScript::Calendar->new(@ARGV);
+
+  print "Saving $output.ps...\n";
+  $cal->output($output);
+}
 
 __END__
 
