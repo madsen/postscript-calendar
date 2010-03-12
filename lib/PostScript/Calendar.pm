@@ -854,9 +854,12 @@ Sunday is either 0 or 7, Monday is 1, etc.).
 
 All dimensions are specified in PostScript points (72 per inch).
 
-=head1 INTERFACE
+=for Pod::Loom-sort_method
+new
 
-=head2 C<< $cal = PostScript::Calendar->new($year, $month, [key => value, ...]) >>
+=method new
+
+  $cal = PostScript::Calendar->new($year, $month, [key => value, ...])
 
 This constructs a new PostScript::Calendar object for C<$year> and C<$month>.
 
@@ -1075,53 +1078,61 @@ created.
 
 =back
 
-=head2 C<< $cal->add_event($date, $message) >>
+=method add_event
+
+  $cal->add_event($date, $message)
 
 This prints the text C<$message> on C<$date>, where C<$date> is the
 day of the month.  You may call this multiple times for the same date.
 Messages will be printed in the order they were added.  C<$message>
 may contain newlines to force line breaks.
 
-=head2 C<< $cal->shade($date, ...) >>
+=method shade
+
+  $cal->shade($date, ...)
 
 This colors the background of the specified date(s) a light gray,
 where C<$date> is the day of the month.  Any number of dates can be
 given.
 
-=head2 C<< $cal->shade_days_of_week($day, ...) >>
+=method shade_days_of_week
+
+  $cal->shade_days_of_week($day, ...)
 
 This calls C<shade> for all dates that fall on the specified day(s) of
 the week.  Each C<$day> should be 0-7 (where Sunday is either 0 or 7).
 
-=head2 C<< $cal->generate >>
+=method generate
+
+  $cal->generate
 
 This actually generates the calendar, placing it in the
 PostScript::File object.  You shouldn't need to call this, because
 C<output> calls it automatically.
 
-=head2 C<< $cal->output($filename) >>
+=method output
+
+  $cal->output($filename)
 
 This passes its parameters to C<PostScript::File::output> (after
 calling C<generate> if necessary).  Normally, you just pass the
 filename to write.  Note that PostScript::File will append ".ps" to
 the output filename.
 
-=head2 C<< $cal->ps_file >>
+=method ps_file
+
+  $cal->ps_file
 
 This returns the PostScript::File object that C<$cal> is using.  Only
 needed for advanced techniques.
 
-=head1 DIAGNOSTICS
 
-=over
-
-=item C<< WARNING: Event text for YYYY-MM-DD doesn't fit >>
+=diag C<< WARNING: Event text for YYYY-MM-DD doesn't fit >>
 
 You supplied more event text for the specified date than would fit in
 the box.  You'll have to use a smaller font, smaller margins, or less
 text.
 
-=back
 
 
 =head1 CONFIGURATION AND ENVIRONMENT
