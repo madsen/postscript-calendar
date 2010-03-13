@@ -22,15 +22,8 @@ To install this module, run the following commands:
 
 DEPENDENCIES
 
-  Package           Minimum Version
-  ----------------- ---------------
-{{
-  my $requires = $meta{requires};
+{{ $t->dependency_list }}
 
-  foreach my $req ('perl', sort grep { $_ ne 'perl' } keys %$requires) {
-    $OUT .= sprintf("  %-18s %s\n", $req, $requires->{$req});
-  }
-}}
 To display phases of the moon:
 {{
   my $recommends = $meta{recommends};
