@@ -8,7 +8,7 @@
 ^MANIFEST\.
 ^Makefile$
 ^MYMETA.yml
-^README.PL
+^README.md
 ^(?i)TODO.txt
 ^\.
 ^announce.txt$
