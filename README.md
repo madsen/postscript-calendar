@@ -4,8 +4,8 @@ PostScript::Calendar
 PostScript::Calendar is a Perl module that generates printable
 calendars using PostScript.
 
-PostScript::Calendar uses Date::Calc's \*_to_Text functions, so you
-can change the language used by calling Date::Calc's Language
+PostScript::Calendar uses [Date::Calc](http://search.cpan.org/perldoc?Date::Calc)'s `*_to_Text` functions, so you
+can change the language used by calling Date::Calc's `Language`
 function before creating your calendar.
 
 This is a Git repository where development of PostScript::Calendar
