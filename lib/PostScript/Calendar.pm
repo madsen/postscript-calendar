@@ -23,8 +23,19 @@ use strict;
 use Carp;
 use Date::Calc qw(Add_Delta_YM Day_of_Week Day_of_Week_to_Text
                   Days_in_Month Localtime Mktime Month_to_Text);
-use Font::AFM;
 use PostScript::File 2.01;
+
+=head1 DEPENDENCIES
+
+{{$t->dependency_link('Date::Calc')}}
+and {{$t->dependency_link('PostScript::File')}}.
+
+If you want to display phases of the moon, you'll need
+{{$t->dependency_link('Astro::MoonPhase')}}.
+
+All of these are available on CPAN.
+
+=cut
 
 #=====================================================================
 # Package Global Variables:
@@ -869,7 +880,7 @@ new
 This constructs a new PostScript::Calendar object for C<$year> and C<$month>.
 
 There are a large number of parameters you can pass to customize how
-the calendar is displayed.  They are all passed as S<< C<< name => value >> >>
+the calendar is displayed.  They are all passed as C<< name => value >>
 pairs.
 
 =over
@@ -909,7 +920,7 @@ Astro::MoonPhase 0.60).  The default is false.
 =item C<title>
 
 The title to be printed at the top of the calendar.  The default is
-"Month YEAR" (where Month comes from Month_to_Text, and YEAR is
+"Month YEAR" (where Month comes from C<Month_to_Text>, and YEAR is
 numeric.)  Setting this to the empty string automatically sets
 C<title_size> and C<title_skip> to 0 (completely suppressing the title).
 
@@ -1138,33 +1149,6 @@ You supplied more event text for the specified date than would fit in
 the box.  You'll have to use a smaller font, smaller margins, or less
 text.
 
-
-
-=head1 CONFIGURATION AND ENVIRONMENT
-
-PostScript::Calendar requires no configuration files or environment variables.
-
-However, it uses L<Font::AFM>, and unfortunately that's difficult to
-configure properly.  I wound up creating symlinks in
-C</usr/local/lib/afm/> (which is one of the default paths that
-Font::AFM searches if you don't have a C<METRICS> environment
-variable):
-
- Helvetica.afm         -> /usr/share/fonts/afms/adobe/phvr8a.afm
- Helvetica-Oblique.afm -> /usr/share/fonts/afms/adobe/phvro8a.afm
-
-Paths on your system may vary.  I suggest searching for C<.afm> files,
-and then grepping them for "FontName Helvetica".  Helvetica and
-Helvetica-Oblique are the two fonts that PostScript::Calendar uses by
-default, and Font::AFM expects to find files named C<Helvetica.afm>
-and C<Helvetica-Oblique.afm>.
-
-=head1 DEPENDENCIES
-
-L<Date::Calc> (5.0 or later), L<Font::AFM>, and L<PostScript::File>.
-
-If you want to display phases of the moon, you'll need
-L<Astro::MoonPhase> 0.60 or later.
 
 
 =head1 INCOMPATIBILITIES
