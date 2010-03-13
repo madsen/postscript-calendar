@@ -7,7 +7,7 @@ README
 example/calendar.pl
 lib/PostScript/Calendar.pm
 t/00.load.t
-t/10.content.t
+t/10.calendar.t
 t/release-perlcritic.t
 t/release-pod-coverage.t
 t/release-pod-syntax.t
