@@ -3,9 +3,6 @@
 
 use Test::More;
 
-plan skip_all => "Don't want automated Perl::Critic reports"
-    if $ENV{AUTOMATED_TESTING};
-
 # ProhibitAccessOfPrivateData is a badly implemented policy that bans
 # all use of hashrefs
 eval <<'';
