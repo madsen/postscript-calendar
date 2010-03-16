@@ -22,7 +22,7 @@ my $builder = My_Build->new(
   dist_version_from  => 'lib/PostScript/Calendar.pm',
   dynamic_config     => 0,
   # Prerequisites inserted by DistZilla:
-#{{ $plugin->get_prereqs #}}
+##{ $plugin->get_prereqs ##}
 );
 
 $builder->create_build_script();
