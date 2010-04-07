@@ -1,5 +1,8 @@
 Revision history for PostScript::Calendar
 
+0.06   NOT
+	- Figured out how to avoid Latin-1 in POD (S<C<< >>> works correctly)
+
 0.05   March 15, 2010
 	- PostScript::File 2.00 now provides pstr and metrics
 	  Font::AFM is no longer required!

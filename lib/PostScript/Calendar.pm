@@ -40,7 +40,7 @@ All of these are available on CPAN.
 #=====================================================================
 # Package Global Variables:
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 our @phaseName = qw(NewMoon FirstQuarter FullMoon LastQuarter);
 
@@ -880,7 +880,7 @@ new
 This constructs a new PostScript::Calendar object for C<$year> and C<$month>.
 
 There are a large number of parameters you can pass to customize how
-the calendar is displayed.  They are all passed as C<< name => value >>
+the calendar is displayed.  They are all passed as S<C<< name => value >>>
 pairs.
 
 =over
