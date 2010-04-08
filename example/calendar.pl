@@ -66,8 +66,7 @@ if ($year) {
   my $ps;
   for my $month (1 .. 12) {
     $ps->newpage if $ps;
-    my $cal = PostScript::Calendar->new($year, $month, @ARGV,
-                                        ($ps ? (ps_file => $ps) : ()));
+    my $cal = PostScript::Calendar->new($year, $month, @ARGV, ps_file => $ps);
     $cal->generate;
     # We get the PostScript::File from the first calendar,
     # and pass that to the remaining calendars:

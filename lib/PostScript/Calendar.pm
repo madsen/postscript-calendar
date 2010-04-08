@@ -1090,7 +1090,7 @@ Not used if you supply C<ps_file>.
 
 Allows you to pass in a PostScript::File (or compatible) object for
 the calendar to use.  By default, a new PostScript::File object is
-created.
+created.  Passing an explicit C<undef> also creates a new object.
 
 =back
 
