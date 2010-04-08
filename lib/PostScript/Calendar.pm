@@ -179,7 +179,11 @@ sub new
       need_fonts  => [ keys %font ],
       landscape   => $p{landscape},
     );
-  }
+
+    $self->{psFile}->add_comment(
+      sprintf 'Creator: %s %s', ref($self), $self->VERSION
+    );
+  } # end unless supplied ps_file
 
   $self->shade_days_of_week(@{ $p{shade_days_of_week} })
       if $p{shade_days_of_week};
@@ -537,8 +541,6 @@ sub generate
   my $gridBottom = $dayTop - $dayHeight * @$grid;
   my $gridHeight = $dayTop - $gridBottom + $dayLabelSize + $labelSkip;
   my $gridTop    = $gridBottom + $gridHeight;
-
-  $ps->add_comment(sprintf 'Creator: %s %s', ref($self), $self->VERSION);
 
   $ps->add_to_page(<<"END_PAGE_INIT");
 0 setlinecap
