@@ -1,6 +1,6 @@
 Revision history for PostScript::Calendar
 
-0.06   NOT
+0.06   September 27, 2010
 	- Add a Creator comment only if we create the PostScript::File object
 	- Document that passing ps_file => undef creates a new object
 	- List the fonts we use even when given a ps_file
