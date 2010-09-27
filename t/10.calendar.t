@@ -16,6 +16,8 @@
 # Test the content of generated PostScript calendars
 #---------------------------------------------------------------------
 
+BEGIN {$ENV{TZ} = 'CST6'} # For consistent phase-of-moon calculations
+
 use strict;
 use warnings;
 

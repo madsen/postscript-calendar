@@ -3,6 +3,7 @@ Revision history for PostScript::Calendar
 0.06   NOT
 	- Add a Creator comment only if we create the PostScript::File object
 	- Document that passing ps_file => undef creates a new object
+	- Force timezone in tests for consistent results
 	- Figured out how to avoid Latin-1 in POD (S<C<< >>> works correctly)
 
 0.05   March 15, 2010
