@@ -157,18 +157,14 @@ sub new
       ($p{day_names} or
        [ map { Day_of_Week_to_Text($_ % 7 || 7) } @$days ]);
 
+  # If no title, suppress it completely:
   if (not length $self->{title}) {
     $self->{titleSize} = 0;
     $self->{titleSkip} = 0;
   } # end if title is suppressed
 
+  # Create a PostScript::File object if necessary:
   unless ($self->{psFile}) {
-    my %font;
-    while (my ($k, $v) = each %$self) {
-      next unless $k =~ /Font$/;
-      $font{ $v =~ /^(.+)-iso$/ ? $1 : $v } = 1;
-    }
-
     $self->{psFile} = PostScript::File->new(
       paper       => ($p{paper} || 'Letter'),
       top         => $self->{topMar},
@@ -176,7 +172,6 @@ sub new
       right       => $self->{sideMar},
       title       => PostScript::File->pstr($self->{title}),
       reencode    => 'cp1252',
-      need_fonts  => [ keys %font ],
       landscape   => $p{landscape},
     );
 
@@ -185,6 +180,15 @@ sub new
     );
   } # end unless supplied ps_file
 
+  # Compile the list of required fonts:
+  my %font;
+  while (my ($k, $v) = each %$self) {
+    next unless $k =~ /Font$/;
+    $font{ $v =~ /^(.+)-iso$/ ? $1 : $v } = 1;
+  }
+  $self->{psFile}->need_resource(font => keys %font);
+
+  # Shade specified days of the week:
   $self->shade_days_of_week(@{ $p{shade_days_of_week} })
       if $p{shade_days_of_week};
 
