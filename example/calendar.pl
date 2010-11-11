@@ -94,7 +94,9 @@ calendar.pl - Generate a monthly calendar in PostScript
 =head1 SYNOPSIS
 
  Usage:  calendar.pl [options] YEAR MONTH [PARAMETER VALUE ...]
+         calendar.pl --year=YEAR [PARAMETER VALUE ...]
    -o, --output=NAME  Save calendar to NAME.ps (default YEAR-MONTH)
+   -y, --year=YEAR    Make a calendar for each month of YEAR
    -?, --help         Display this usage information and exit
        --version      Display version number and exit
 
