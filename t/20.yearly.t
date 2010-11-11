@@ -65,12 +65,14 @@ isa_ok($ps, 'PostScript::File') unless $generateResults;
 # Use sanitized output (unless $generateResults eq 'ps'):
 my $out = $ps->testable_output($generateResults eq 'ps');
 
+$out =~ s/(?<=^%%Creator: PostScript::Calendar).+(?=\n)//m;
+
 if ($generateResults) {
   print OUT $out;
 } else {
   eq_or_diff($out, <<'END CALENDAR', 'generated PostScript');
 %!PS-Adobe-3.0
-%%Creator: PostScript::Calendar 0.06
+%%Creator: PostScript::Calendar
 %%Orientation: Portrait
 %%DocumentNeededResources:
 %%+ font Courier-Bold Helvetica Helvetica-Oblique
