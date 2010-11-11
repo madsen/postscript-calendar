@@ -21,9 +21,6 @@ BEGIN {$ENV{TZ} = 'CST6'} # For consistent phase-of-moon calculations
 use strict;
 use warnings;
 
-use FindBin '$Bin';
-chdir $Bin or die "Unable to cd $Bin: $!";
-
 use Test::More;
 
 # Load Test::Differences, if available:
@@ -36,10 +33,29 @@ BEGIN {
   }
 } # end BEGIN
 
+my $skipAstro;
+$skipAstro = 'Astro::MoonPhase 0.60 not installed'
+    unless eval 'use Astro::MoonPhase 0.60; 1';
+
+unless (localtime(1262325600) eq 'Fri Jan  1 00:00:00 2010') {
+  # Try restarting the script:
+  #  (Windows doesn't let you change timezones after the program starts)
+  unless (@ARGV) {
+    diag("Restarting to pick up timezone change...");
+    exec $^X, $0, 'restarted';
+  }
+  # If that doesn't work, just skip the phase-of-moon tests:
+  $skipAstro ||= "Unable to set CST6 timezone";
+} # end unless we're in CST6 timezone
+
+use FindBin '$Bin';
+chdir $Bin or die "Unable to cd $Bin: $!";
+
 my $generateResults;
 
 if (@ARGV and $ARGV[0] eq 'gen') {
   # Just output the actual results, so they can be diffed against this file
+  die "Can't skip moon tests when generating results\n" if $skipAstro;
   $generateResults = 1;
   open(OUT, '>', '/tmp/10.calendar.t') or die $!;
   printf OUT "#%s\n\n__DATA__\n", '=' x 69;
@@ -49,8 +65,6 @@ if (@ARGV and $ARGV[0] eq 'gen') {
 
 require PostScript::Calendar;
 ok(1, 'loaded PostScript::Calendar') unless $generateResults;
-
-my $haveAstro = eval 'use Astro::MoonPhase 0.60; 1';
 
 my ($year, $month, $name, %param, @methods);
 
@@ -74,8 +88,7 @@ while (<DATA>) {
     }
 
   SKIP: {
-      skip "Astro::MoonPhase not installed", 2
-          if $param{phases} and not $haveAstro;
+      skip $skipAstro, 2 if $param{phases} and $skipAstro;
 
       # Run the test:
       my $cal = PostScript::Calendar->new($year, $month, %param);

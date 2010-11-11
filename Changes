@@ -1,5 +1,9 @@
 Revision history for PostScript::Calendar
 
+1.00   NOT
+	- No functional changes
+	- Restart test if necessary to pick up timezone change (Windows)
+
 0.06   September 27, 2010
 	- Add a Creator comment only if we create the PostScript::File object
 	- Document that passing ps_file => undef creates a new object
