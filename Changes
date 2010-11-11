@@ -1,6 +1,6 @@
 Revision history for PostScript::Calendar
 
-1.00   NOT
+1.00   November 11, 2010
 	- No functional changes
 	- Restart test if necessary to pick up timezone change (Windows)
 
