@@ -21,9 +21,9 @@ use 5.008;
 use warnings;
 use strict;
 use Carp;
-use Date::Calc qw(Add_Delta_YM Day_of_Week Day_of_Week_to_Text
-                  Days_in_Month Localtime Mktime Month_to_Text);
-use PostScript::File 2.01;
+use Date::Calc 5.0 qw(Add_Delta_YM Day_of_Week Day_of_Week_to_Text
+                      Days_in_Month Localtime Mktime Month_to_Text);
+use PostScript::File 2.01;      # need metrics
 
 =head1 DEPENDENCIES
 
@@ -40,7 +40,7 @@ All of these are available on CPAN.
 #=====================================================================
 # Package Global Variables:
 
-our $VERSION = '1.00';
+our $VERSION = '1.01';
 
 our @phaseName = qw(NewMoon FirstQuarter FullMoon LastQuarter);
 
@@ -200,6 +200,7 @@ sub calc_moon_phases
 {
   my ($self, $year, $month) = @_;
 
+  # RECOMMEND PREREQ: Astro::MoonPhase 0.60
   require Astro::MoonPhase;
   Astro::MoonPhase->VERSION(0.60); # Need phaselist
 
@@ -1166,15 +1167,15 @@ None reported.
 
 No bugs have been reported.
 
-=for Pod::Coverage::TrustPod
-^Add_Delta_M
-^calc_moon_phases
-^compute_grid
-^ev[A-Z]
-^firstdef
-^get_metrics
-^print_calendar
-^print_events
-^print_mini_calendar
-^round
-^wrap_events
+=for Pod::Coverage
+Add_Delta_M
+calc_moon_phases
+compute_grid
+ev[A-Z]\w+
+firstdef
+get_metrics
+print_calendar
+print_events
+print_mini_calendar
+round
+wrap_events

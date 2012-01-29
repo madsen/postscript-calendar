@@ -25,6 +25,7 @@ use Test::More;
 
 # Load Test::Differences, if available:
 BEGIN {
+  # RECOMMEND PREREQ: Test::Differences
   if (eval "use Test::Differences; 1") {
     # Not all versions of Test::Differences support changing the style:
     eval { Test::Differences::unified_diff() }
