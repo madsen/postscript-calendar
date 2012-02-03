@@ -41,7 +41,7 @@ $skipAstro = 'Astro::MoonPhase 0.60 not installed'
 unless (localtime(1262325600) eq 'Fri Jan  1 00:00:00 2010') {
   # Try restarting the script:
   #  (Windows doesn't let you change timezones after the program starts)
-  unless (@ARGV) {
+  unless (grep { $_ eq 'restarted' } @ARGV) {
     diag("Restarting to pick up timezone change...");
     exec $^X, $0, 'restarted';
   }
@@ -58,7 +58,7 @@ if (@ARGV and $ARGV[0] eq 'gen') {
   # Just output the actual results, so they can be diffed against this file
   die "Can't skip moon tests when generating results\n" if $skipAstro;
   $generateResults = 1;
-  open(OUT, '>', '/tmp/10.calendar.t') or die $!;
+  open(OUT, '>', '/tmp/10-calendar.t') or die $!;
   printf OUT "#%s\n\n__DATA__\n", '=' x 69;
 } else {
   plan tests => 4 * 2 + 1;
@@ -126,7 +126,7 @@ while (<DATA>) {
     $month = $3;
   } # end elsif test name (:: name)
   else {
-    die "Unrecognized line $_" if /\S/;
+    die "Unrecognized line $_" if /\S/ and not /^# /;
   }
 } # end while <DATA>
 
@@ -147,77 +147,6 @@ __DATA__
 %%BeginProlog
 %%BeginResource: procset PostScript_Calendar 0 0
 /pixel {72 mul 300 div} bind def % 300 dpi only
-%---------------------------------------------------------------------
-% Stroke a horizontal line:  WIDTH X Y hline
-/hline
-{
-newpath
-moveto
-0 rlineto stroke
-} bind def
-%---------------------------------------------------------------------
-% Stroke a vertical line:  HEIGHT X Y vline
-/vline
-{
-newpath
-moveto
-0 exch rlineto stroke
-} bind def
-%---------------------------------------------------------------------
-% Print text centered at a point:  X Y STRING showcenter
-%
-% Centers text horizontally
-/showcenter
-{
-newpath
-0 0 moveto
-% stack X Y STRING
-dup 4 1 roll                          % Put a copy of STRING on bottom
-% stack STRING X Y STRING
-false charpath flattenpath pathbbox   % Compute bounding box of STRING
-% stack STRING X Y Lx Ly Ux Uy
-pop exch pop                          % Discard Y values (... Lx Ux)
-add 2 div neg                         % Compute X offset
-% stack STRING X Y Ox
-0                                     % Use 0 for y offset
-newpath
-moveto
-rmoveto
-show
-} bind def
-%---------------------------------------------------------------------
-% Print left justified text:  X Y STRING showleft
-%
-% Does not adjust vertical placement.
-/showleft
-{
-newpath
-3 1 roll  % STRING X Y
-moveto
-show
-} bind def
-%---------------------------------------------------------------------
-% Print right justified text:  X Y STRING showright
-%
-% Does not adjust vertical placement.
-/showright
-{
-newpath
-0 0 moveto
-% stack X Y STRING
-dup 4 1 roll                          % Put a copy of STRING on bottom
-% stack STRING X Y STRING
-false charpath flattenpath pathbbox   % Compute bounding box of STRING
-% stack STRING X Y Lx Ly Ux Uy
-pop exch pop                          % Discard Y values (... Lx Ux)
-add neg                               % Compute X offset
-% stack STRING X Y Ox
-0                                     % Use 0 for y offset
-newpath
-moveto
-rmoveto
-show
-} bind def
 %---------------------------------------------------------------------
 % Display text events:  X Y [STRING ...] Events
 /Events
@@ -282,49 +211,49 @@ userdict begin
 /MiniSize 6 def
 /MiniFont /Helvetica-iso findfont MiniSize scalefont def
 TitleFont setfont
-306 742 (February 2010) showcenter
+306 742 (February 2010) showCenter
 LabelFont setfont
-64 723 (Sunday) showcenter
-144 723 (Monday) showcenter
-224 723 (Tuesday) showcenter
-304 723 (Wednesday) showcenter
-384 723 (Thursday) showcenter
-464 723 (Friday) showcenter
-544 723 (Saturday) showcenter
+64 723 (Sunday) showCenter
+144 723 (Monday) showCenter
+224 723 (Tuesday) showCenter
+304 723 (Wednesday) showCenter
+384 723 (Thursday) showCenter
+464 723 (Friday) showCenter
+544 723 (Saturday) showCenter
 DateFont setfont
-180 702 (1) showright
-260 702 (2) showright
-340 702 (3) showright
-420 702 (4) showright
-500 702 (5) showright
-580 702 (6) showright
-100 564 (7) showright
-180 564 (8) showright
-260 564 (9) showright
-340 564 (10) showright
-420 564 (11) showright
-500 564 (12) showright
-580 564 (13) showright
-100 426 (14) showright
-180 426 (15) showright
-260 426 (16) showright
-340 426 (17) showright
-420 426 (18) showright
-500 426 (19) showright
-580 426 (20) showright
-100 288 (21) showright
-180 288 (22) showright
-260 288 (23) showright
-340 288 (24) showright
-420 288 (25) showright
-500 288 (26) showright
-580 288 (27) showright
-100 150 (28) showright
+180 702 (1) showRight
+260 702 (2) showRight
+340 702 (3) showRight
+420 702 (4) showRight
+500 702 (5) showRight
+580 702 (6) showRight
+100 564 (7) showRight
+180 564 (8) showRight
+260 564 (9) showRight
+340 564 (10) showRight
+420 564 (11) showRight
+500 564 (12) showRight
+580 564 (13) showRight
+100 426 (14) showRight
+180 426 (15) showRight
+260 426 (16) showRight
+340 426 (17) showRight
+420 426 (18) showRight
+500 426 (19) showRight
+580 426 (20) showRight
+100 288 (21) showRight
+180 288 (22) showRight
+260 288 (23) showRight
+340 288 (24) showRight
+420 288 (25) showRight
+500 288 (26) showRight
+580 288 (27) showRight
+100 150 (28) showRight
 166 138 718 {
-560 24 3 -1 roll hline
+560 24 3 -1 roll hLine
 } for
 104 80 544 {
-709 exch 28 vline
+709 exch 28 vLine
 } for
 newpath
 24 737 moveto
@@ -354,77 +283,6 @@ showpage
 %%BeginResource: procset PostScript_Calendar 0 0
 /pixel {72 mul 300 div} bind def % 300 dpi only
 %---------------------------------------------------------------------
-% Stroke a horizontal line:  WIDTH X Y hline
-/hline
-{
-newpath
-moveto
-0 rlineto stroke
-} bind def
-%---------------------------------------------------------------------
-% Stroke a vertical line:  HEIGHT X Y vline
-/vline
-{
-newpath
-moveto
-0 exch rlineto stroke
-} bind def
-%---------------------------------------------------------------------
-% Print text centered at a point:  X Y STRING showcenter
-%
-% Centers text horizontally
-/showcenter
-{
-newpath
-0 0 moveto
-% stack X Y STRING
-dup 4 1 roll                          % Put a copy of STRING on bottom
-% stack STRING X Y STRING
-false charpath flattenpath pathbbox   % Compute bounding box of STRING
-% stack STRING X Y Lx Ly Ux Uy
-pop exch pop                          % Discard Y values (... Lx Ux)
-add 2 div neg                         % Compute X offset
-% stack STRING X Y Ox
-0                                     % Use 0 for y offset
-newpath
-moveto
-rmoveto
-show
-} bind def
-%---------------------------------------------------------------------
-% Print left justified text:  X Y STRING showleft
-%
-% Does not adjust vertical placement.
-/showleft
-{
-newpath
-3 1 roll  % STRING X Y
-moveto
-show
-} bind def
-%---------------------------------------------------------------------
-% Print right justified text:  X Y STRING showright
-%
-% Does not adjust vertical placement.
-/showright
-{
-newpath
-0 0 moveto
-% stack X Y STRING
-dup 4 1 roll                          % Put a copy of STRING on bottom
-% stack STRING X Y STRING
-false charpath flattenpath pathbbox   % Compute bounding box of STRING
-% stack STRING X Y Lx Ly Ux Uy
-pop exch pop                          % Discard Y values (... Lx Ux)
-add neg                               % Compute X offset
-% stack STRING X Y Ox
-0                                     % Use 0 for y offset
-newpath
-moveto
-rmoveto
-show
-} bind def
-%---------------------------------------------------------------------
 % Display text events:  X Y [STRING ...] Events
 /Events
 {
@@ -488,50 +346,50 @@ userdict begin
 /MiniSize 6 def
 /MiniFont /Helvetica-iso findfont MiniSize scalefont def
 TitleFont setfont
-306 742 (February 2000) showcenter
+306 742 (February 2000) showCenter
 LabelFont setfont
-64 723 (Sunday) showcenter
-144 723 (Monday) showcenter
-224 723 (Tuesday) showcenter
-304 723 (Wednesday) showcenter
-384 723 (Thursday) showcenter
-464 723 (Friday) showcenter
-544 723 (Saturday) showcenter
+64 723 (Sunday) showCenter
+144 723 (Monday) showCenter
+224 723 (Tuesday) showCenter
+304 723 (Wednesday) showCenter
+384 723 (Thursday) showCenter
+464 723 (Friday) showCenter
+544 723 (Saturday) showCenter
 DateFont setfont
-260 702 (1) showright
-340 702 (2) showright
-420 702 (3) showright
-500 702 (4) showright
-580 702 (5) showright
-100 564 (6) showright
-180 564 (7) showright
-260 564 (8) showright
-340 564 (9) showright
-420 564 (10) showright
-500 564 (11) showright
-580 564 (12) showright
-100 426 (13) showright
-180 426 (14) showright
-260 426 (15) showright
-340 426 (16) showright
-420 426 (17) showright
-500 426 (18) showright
-580 426 (19) showright
-100 288 (20) showright
-180 288 (21) showright
-260 288 (22) showright
-340 288 (23) showright
-420 288 (24) showright
-500 288 (25) showright
-580 288 (26) showright
-100 150 (27) showright
-180 150 (28) showright
-260 150 (29) showright
+260 702 (1) showRight
+340 702 (2) showRight
+420 702 (3) showRight
+500 702 (4) showRight
+580 702 (5) showRight
+100 564 (6) showRight
+180 564 (7) showRight
+260 564 (8) showRight
+340 564 (9) showRight
+420 564 (10) showRight
+500 564 (11) showRight
+580 564 (12) showRight
+100 426 (13) showRight
+180 426 (14) showRight
+260 426 (15) showRight
+340 426 (16) showRight
+420 426 (17) showRight
+500 426 (18) showRight
+580 426 (19) showRight
+100 288 (20) showRight
+180 288 (21) showRight
+260 288 (22) showRight
+340 288 (23) showRight
+420 288 (24) showRight
+500 288 (25) showRight
+580 288 (26) showRight
+100 150 (27) showRight
+180 150 (28) showRight
+260 150 (29) showRight
 166 138 718 {
-560 24 3 -1 roll hline
+560 24 3 -1 roll hLine
 } for
 104 80 544 {
-709 exch 28 vline
+709 exch 28 vLine
 } for
 newpath
 24 737 moveto
@@ -562,77 +420,6 @@ shade_days_of_week: [ 0, 6 ]
 %%BeginProlog
 %%BeginResource: procset PostScript_Calendar 0 0
 /pixel {72 mul 300 div} bind def % 300 dpi only
-%---------------------------------------------------------------------
-% Stroke a horizontal line:  WIDTH X Y hline
-/hline
-{
-newpath
-moveto
-0 rlineto stroke
-} bind def
-%---------------------------------------------------------------------
-% Stroke a vertical line:  HEIGHT X Y vline
-/vline
-{
-newpath
-moveto
-0 exch rlineto stroke
-} bind def
-%---------------------------------------------------------------------
-% Print text centered at a point:  X Y STRING showcenter
-%
-% Centers text horizontally
-/showcenter
-{
-newpath
-0 0 moveto
-% stack X Y STRING
-dup 4 1 roll                          % Put a copy of STRING on bottom
-% stack STRING X Y STRING
-false charpath flattenpath pathbbox   % Compute bounding box of STRING
-% stack STRING X Y Lx Ly Ux Uy
-pop exch pop                          % Discard Y values (... Lx Ux)
-add 2 div neg                         % Compute X offset
-% stack STRING X Y Ox
-0                                     % Use 0 for y offset
-newpath
-moveto
-rmoveto
-show
-} bind def
-%---------------------------------------------------------------------
-% Print left justified text:  X Y STRING showleft
-%
-% Does not adjust vertical placement.
-/showleft
-{
-newpath
-3 1 roll  % STRING X Y
-moveto
-show
-} bind def
-%---------------------------------------------------------------------
-% Print right justified text:  X Y STRING showright
-%
-% Does not adjust vertical placement.
-/showright
-{
-newpath
-0 0 moveto
-% stack X Y STRING
-dup 4 1 roll                          % Put a copy of STRING on bottom
-% stack STRING X Y STRING
-false charpath flattenpath pathbbox   % Compute bounding box of STRING
-% stack STRING X Y Lx Ly Ux Uy
-pop exch pop                          % Discard Y values (... Lx Ux)
-add neg                               % Compute X offset
-% stack STRING X Y Ox
-0                                     % Use 0 for y offset
-newpath
-moveto
-rmoveto
-show
-} bind def
 %---------------------------------------------------------------------
 % Display text events:  X Y [STRING ...] Events
 /Events
@@ -735,52 +522,52 @@ gsave
 ShadeDay
 grestore
 TitleFont setfont
-306 742 (July 2008) showcenter
+306 742 (July 2008) showCenter
 LabelFont setfont
-64 723 (Sunday) showcenter
-144 723 (Monday) showcenter
-224 723 (Tuesday) showcenter
-304 723 (Wednesday) showcenter
-384 723 (Thursday) showcenter
-464 723 (Friday) showcenter
-544 723 (Saturday) showcenter
+64 723 (Sunday) showCenter
+144 723 (Monday) showCenter
+224 723 (Tuesday) showCenter
+304 723 (Wednesday) showCenter
+384 723 (Thursday) showCenter
+464 723 (Friday) showCenter
+544 723 (Saturday) showCenter
 DateFont setfont
-260 702 (1) showright
-340 702 (2) showright
-420 702 (3) showright
-500 702 (4) showright
-580 702 (5) showright
-100 564 (6) showright
-180 564 (7) showright
-260 564 (8) showright
-340 564 (9) showright
-420 564 (10) showright
-500 564 (11) showright
-580 564 (12) showright
-100 426 (13) showright
-180 426 (14) showright
-260 426 (15) showright
-340 426 (16) showright
-420 426 (17) showright
-500 426 (18) showright
-580 426 (19) showright
-100 288 (20) showright
-180 288 (21) showright
-260 288 (22) showright
-340 288 (23) showright
-420 288 (24) showright
-500 288 (25) showright
-580 288 (26) showright
-100 150 (27) showright
-180 150 (28) showright
-260 150 (29) showright
-340 150 (30) showright
-420 150 (31) showright
+260 702 (1) showRight
+340 702 (2) showRight
+420 702 (3) showRight
+500 702 (4) showRight
+580 702 (5) showRight
+100 564 (6) showRight
+180 564 (7) showRight
+260 564 (8) showRight
+340 564 (9) showRight
+420 564 (10) showRight
+500 564 (11) showRight
+580 564 (12) showRight
+100 426 (13) showRight
+180 426 (14) showRight
+260 426 (15) showRight
+340 426 (16) showRight
+420 426 (17) showRight
+500 426 (18) showRight
+580 426 (19) showRight
+100 288 (20) showRight
+180 288 (21) showRight
+260 288 (22) showRight
+340 288 (23) showRight
+420 288 (24) showRight
+500 288 (25) showRight
+580 288 (26) showRight
+100 150 (27) showRight
+180 150 (28) showRight
+260 150 (29) showRight
+340 150 (30) showRight
+420 150 (31) showRight
 166 138 718 {
-560 24 3 -1 roll hline
+560 24 3 -1 roll hLine
 } for
 104 80 544 {
-709 exch 28 vline
+709 exch 28 vLine
 } for
 newpath
 24 737 moveto
@@ -812,77 +599,6 @@ phases: 1
 %%BeginProlog
 %%BeginResource: procset PostScript_Calendar 0 0
 /pixel {72 mul 300 div} bind def % 300 dpi only
-%---------------------------------------------------------------------
-% Stroke a horizontal line:  WIDTH X Y hline
-/hline
-{
-newpath
-moveto
-0 rlineto stroke
-} bind def
-%---------------------------------------------------------------------
-% Stroke a vertical line:  HEIGHT X Y vline
-/vline
-{
-newpath
-moveto
-0 exch rlineto stroke
-} bind def
-%---------------------------------------------------------------------
-% Print text centered at a point:  X Y STRING showcenter
-%
-% Centers text horizontally
-/showcenter
-{
-newpath
-0 0 moveto
-% stack X Y STRING
-dup 4 1 roll                          % Put a copy of STRING on bottom
-% stack STRING X Y STRING
-false charpath flattenpath pathbbox   % Compute bounding box of STRING
-% stack STRING X Y Lx Ly Ux Uy
-pop exch pop                          % Discard Y values (... Lx Ux)
-add 2 div neg                         % Compute X offset
-% stack STRING X Y Ox
-0                                     % Use 0 for y offset
-newpath
-moveto
-rmoveto
-show
-} bind def
-%---------------------------------------------------------------------
-% Print left justified text:  X Y STRING showleft
-%
-% Does not adjust vertical placement.
-/showleft
-{
-newpath
-3 1 roll  % STRING X Y
-moveto
-show
-} bind def
-%---------------------------------------------------------------------
-% Print right justified text:  X Y STRING showright
-%
-% Does not adjust vertical placement.
-/showright
-{
-newpath
-0 0 moveto
-% stack X Y STRING
-dup 4 1 roll                          % Put a copy of STRING on bottom
-% stack STRING X Y STRING
-false charpath flattenpath pathbbox   % Compute bounding box of STRING
-% stack STRING X Y Lx Ly Ux Uy
-pop exch pop                          % Discard Y values (... Lx Ux)
-add neg                               % Compute X offset
-% stack STRING X Y Ox
-0                                     % Use 0 for y offset
-newpath
-moveto
-rmoveto
-show
-} bind def
 %---------------------------------------------------------------------
 % Display text events:  X Y [STRING ...] Events
 /Events
@@ -1003,51 +719,51 @@ gsave
 /LastQuarter ShowPhase
 grestore
 TitleFont setfont
-306 742 (November 2010) showcenter
+306 742 (November 2010) showCenter
 LabelFont setfont
-64 723 (Sunday) showcenter
-144 723 (Monday) showcenter
-224 723 (Tuesday) showcenter
-304 723 (Wednesday) showcenter
-384 723 (Thursday) showcenter
-464 723 (Friday) showcenter
-544 723 (Saturday) showcenter
+64 723 (Sunday) showCenter
+144 723 (Monday) showCenter
+224 723 (Tuesday) showCenter
+304 723 (Wednesday) showCenter
+384 723 (Thursday) showCenter
+464 723 (Friday) showCenter
+544 723 (Saturday) showCenter
 DateFont setfont
-180 702 (1) showright
-260 702 (2) showright
-340 702 (3) showright
-420 702 (4) showright
-500 702 (5) showright
-580 702 (6) showright
-100 564 (7) showright
-180 564 (8) showright
-260 564 (9) showright
-340 564 (10) showright
-420 564 (11) showright
-500 564 (12) showright
-580 564 (13) showright
-100 426 (14) showright
-180 426 (15) showright
-260 426 (16) showright
-340 426 (17) showright
-420 426 (18) showright
-500 426 (19) showright
-580 426 (20) showright
-100 288 (21) showright
-180 288 (22) showright
-260 288 (23) showright
-340 288 (24) showright
-420 288 (25) showright
-500 288 (26) showright
-580 288 (27) showright
-100 150 (28) showright
-180 150 (29) showright
-260 150 (30) showright
+180 702 (1) showRight
+260 702 (2) showRight
+340 702 (3) showRight
+420 702 (4) showRight
+500 702 (5) showRight
+580 702 (6) showRight
+100 564 (7) showRight
+180 564 (8) showRight
+260 564 (9) showRight
+340 564 (10) showRight
+420 564 (11) showRight
+500 564 (12) showRight
+580 564 (13) showRight
+100 426 (14) showRight
+180 426 (15) showRight
+260 426 (16) showRight
+340 426 (17) showRight
+420 426 (18) showRight
+500 426 (19) showRight
+580 426 (20) showRight
+100 288 (21) showRight
+180 288 (22) showRight
+260 288 (23) showRight
+340 288 (24) showRight
+420 288 (25) showRight
+500 288 (26) showRight
+580 288 (27) showRight
+100 150 (28) showRight
+180 150 (29) showRight
+260 150 (30) showRight
 166 138 718 {
-560 24 3 -1 roll hline
+560 24 3 -1 roll hLine
 } for
 104 80 544 {
-709 exch 28 vline
+709 exch 28 vLine
 } for
 newpath
 24 737 moveto
@@ -1061,3 +777,7 @@ pagelevel restore
 showpage
 %%EOF
 ---
+
+# Local Variables:
+# compile-command: "perl 10-calendar.t gen"
+# End:

@@ -1,7 +1,7 @@
 Revision history for PostScript::Calendar
 
 1.01   NOT
-	-
+	- Use the function library provided by PostScript::File 2.20
 
 1.00   November 11, 2010
 	- No functional changes

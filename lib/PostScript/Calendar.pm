@@ -23,7 +23,7 @@ use strict;
 use Carp;
 use Date::Calc 5.0 qw(Add_Delta_YM Day_of_Week Day_of_Week_to_Text
                       Days_in_Month Localtime Mktime Month_to_Text);
-use PostScript::File 2.01;      # need metrics
+use PostScript::File 2.20;      # need use_functions
 
 =head1 DEPENDENCIES
 
@@ -41,6 +41,7 @@ All of these are available on CPAN.
 # Package Global Variables:
 
 our $VERSION = '1.01';
+# This file is part of {{$dist}} {{$dist_version}} ({{$date}})
 
 our @phaseName = qw(NewMoon FirstQuarter FullMoon LastQuarter);
 
@@ -307,7 +308,7 @@ sub print_calendar
   local $psFile = my $ps = $self->{psFile};
 
   $ps->add_to_page( <<"END_TITLE" ) if length($p{title});
-$p{titleFont}$p{midpoint} $p{titleY} $S{$p{title}} showcenter
+$p{titleFont}$p{midpoint} $p{titleY} $S{$p{title}} showCenter
 END_TITLE
 
   $ps->add_to_page("$p{labelFont}\n");
@@ -319,13 +320,13 @@ END_TITLE
 
   my $x = $p{leftEdge} + $p{midday};
   foreach (@{ $p{dayNames} }) {
-    $ps->add_to_page("$x $p{labelY} $S{$_} showcenter\n");
+    $ps->add_to_page("$x $p{labelY} $S{$_} showCenter\n");
     $x += $dayWidth;
   }
 
   $ps->add_to_page($p{dateFont}) if $p{dateFont};
 
-  my $showdate = $p{dateShow} || 'showright';
+  my $showdate = $p{dateShow} || 'showRight';
   my $y = $p{dayTop} - $p{dateSize} - $p{dateTopMar};
 
   foreach my $row (@$grid) {
@@ -382,7 +383,7 @@ sub print_mini_calendar
     dayHeight  => $linespacing,
     dayWidth   => $dayWidth,
     dateStartX => $x + $sideMar + $midday,
-    dateShow   => 'showcenter',
+    dateShow   => 'showCenter',
     leftEdge   => $x + $sideMar,
     dayNames   => [ map { substr($_,0,1) } @{$self->{dayNames}} ],
     labelY     => $yTop - $fontsize - $linespacing,
@@ -567,90 +568,11 @@ sub generate
 /MiniFont /$self->{miniFont} findfont MiniSize scalefont def
 END_PAGE_INIT
 
-  unless ($ps->has_function('PostScript_Calendar'))
-  { $ps->add_function('PostScript_Calendar', <<'END_FUNCTIONS') }
+  $ps->use_functions(qw(hLine vLine showCenter showRight));
+
+  unless ($ps->has_procset('PostScript_Calendar'))
+  { $ps->add_procset('PostScript_Calendar', <<'END_FUNCTIONS') }
 /pixel {72 mul 300 div} bind def % 300 dpi only
-
-%---------------------------------------------------------------------
-% Stroke a horizontal line:  WIDTH X Y hline
-
-/hline
-{
-  newpath
-  moveto
-  0 rlineto stroke
-} bind def
-
-%---------------------------------------------------------------------
-% Stroke a vertical line:  HEIGHT X Y vline
-
-/vline
-{
-  newpath
-  moveto
-  0 exch rlineto stroke
-} bind def
-
-%---------------------------------------------------------------------
-% Print text centered at a point:  X Y STRING showcenter
-%
-% Centers text horizontally
-
-/showcenter
-{
-  newpath
-  0 0 moveto
-  % stack X Y STRING
-  dup 4 1 roll                          % Put a copy of STRING on bottom
-  % stack STRING X Y STRING
-  false charpath flattenpath pathbbox   % Compute bounding box of STRING
-  % stack STRING X Y Lx Ly Ux Uy
-  pop exch pop                          % Discard Y values (... Lx Ux)
-  add 2 div neg                         % Compute X offset
-  % stack STRING X Y Ox
-  0                                     % Use 0 for y offset
-  newpath
-  moveto
-  rmoveto
-  show
-} bind def
-
-%---------------------------------------------------------------------
-% Print left justified text:  X Y STRING showleft
-%
-% Does not adjust vertical placement.
-
-/showleft
-{
-  newpath
-  3 1 roll  % STRING X Y
-  moveto
-  show
-} bind def
-
-%---------------------------------------------------------------------
-% Print right justified text:  X Y STRING showright
-%
-% Does not adjust vertical placement.
-
-/showright
-{
-  newpath
-  0 0 moveto
-  % stack X Y STRING
-  dup 4 1 roll                          % Put a copy of STRING on bottom
-  % stack STRING X Y STRING
-  false charpath flattenpath pathbbox   % Compute bounding box of STRING
-  % stack STRING X Y Lx Ly Ux Uy
-  pop exch pop                          % Discard Y values (... Lx Ux)
-  add neg                               % Compute X offset
-  % stack STRING X Y Ox
-  0                                     % Use 0 for y offset
-  newpath
-  moveto
-  rmoveto
-  show
-} bind def
 
 %---------------------------------------------------------------------
 % Display text events:  X Y [STRING ...] Events
@@ -709,8 +631,8 @@ END_FUNCTIONS
 
     $ps->add_to_page("/MoonMargin $self->{moonMargin} def\n");
 
-    unless ($ps->has_function('PostScript_Calendar_Moon'))
-    { $ps->add_function('PostScript_Calendar_Moon', <<'END_MOON_FUNCTIONS') }
+    unless ($ps->has_procset('PostScript_Calendar_Moon'))
+    { $ps->add_procset('PostScript_Calendar_Moon', <<'END_MOON_FUNCTIONS') }
 %---------------------------------------------------------------------
 % Show the phase of the moon:  PHASE ShowPhase
 
@@ -775,7 +697,7 @@ END_MOON_FUNCTIONS
               if $events->[$day->[2]];
 
           $ps->add_to_page(<<"END_SPLIT_LINE");
-$dayWidth $x $lineY hline
+$dayWidth $x $lineY hLine
 END_SPLIT_LINE
         } elsif ($day->[0] eq 'calendar') {
           $self->print_mini_calendar(@$day[1,2], $x, $y, $dayWidth, $dayHeight);
@@ -808,13 +730,13 @@ END_SPLIT_LINE
 
   $ps->add_to_page(<<"END_HOR_LINES");
 $E{$gridBottom + $dayHeight} $dayHeight $dayTop\ {
-  $gridWidth $leftEdge 3 -1 roll hline
+  $gridWidth $leftEdge 3 -1 roll hLine
 } for
 END_HOR_LINES
 
   $ps->add_to_page(<<"END_VERT_LINES");
 $E{$leftEdge + $dayWidth} $dayWidth $E{$gridRight - $midday}\ {
-  $gridHeight exch $gridBottom vline
+  $gridHeight exch $gridBottom vLine
 } for
 END_VERT_LINES
 
@@ -828,7 +750,7 @@ $gridWidth 0 rlineto
 closepath stroke
 END_BORDER
   } else {
-    $ps->add_to_page("$gridWidth $leftEdge $gridTop hline\n");
+    $ps->add_to_page("$gridWidth $leftEdge $gridTop hLine\n");
   }
 
   $self->{generated} = 1;
