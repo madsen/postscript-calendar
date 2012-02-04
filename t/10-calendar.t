@@ -146,26 +146,22 @@ __DATA__
 %%EndComments
 %%BeginProlog
 %%BeginResource: procset PostScript_Calendar 0 0
-/pixel {72 mul 300 div} bind def % 300 dpi only
-%---------------------------------------------------------------------
-% Display text events:  X Y [STRING ...] Events
+/pixel {72 mul 300 div} bind def
 /Events
 {
 EventFont setfont
 {
-2 index      % stack X Y STRING X
-3 -1 roll    % stack X STRING X Y
-dup          % stack X STRING X Y Y
+2 index
+3 -1 roll
+dup
 EventSpacing sub
-4 1 roll     % stack X Y' STRING X Y
+4 1 roll
 newpath
 moveto
 show
 } forall
-pop pop        % pop off X & Y
+pop pop
 } bind def
-%---------------------------------------------------------------------
-% Fill a day rect with the current ink:
 /FillDay
 {
 newpath
@@ -176,8 +172,6 @@ DayWidth DayHeight lineto
 closepath
 fill
 } bind def
-%---------------------------------------------------------------------
-% Shade a day with the default background:
 /ShadeDay
 {
 0.85 setgray
@@ -281,26 +275,22 @@ showpage
 %%EndComments
 %%BeginProlog
 %%BeginResource: procset PostScript_Calendar 0 0
-/pixel {72 mul 300 div} bind def % 300 dpi only
-%---------------------------------------------------------------------
-% Display text events:  X Y [STRING ...] Events
+/pixel {72 mul 300 div} bind def
 /Events
 {
 EventFont setfont
 {
-2 index      % stack X Y STRING X
-3 -1 roll    % stack X STRING X Y
-dup          % stack X STRING X Y Y
+2 index
+3 -1 roll
+dup
 EventSpacing sub
-4 1 roll     % stack X Y' STRING X Y
+4 1 roll
 newpath
 moveto
 show
 } forall
-pop pop        % pop off X & Y
+pop pop
 } bind def
-%---------------------------------------------------------------------
-% Fill a day rect with the current ink:
 /FillDay
 {
 newpath
@@ -311,8 +301,6 @@ DayWidth DayHeight lineto
 closepath
 fill
 } bind def
-%---------------------------------------------------------------------
-% Shade a day with the default background:
 /ShadeDay
 {
 0.85 setgray
@@ -419,26 +407,22 @@ shade_days_of_week: [ 0, 6 ]
 %%EndComments
 %%BeginProlog
 %%BeginResource: procset PostScript_Calendar 0 0
-/pixel {72 mul 300 div} bind def % 300 dpi only
-%---------------------------------------------------------------------
-% Display text events:  X Y [STRING ...] Events
+/pixel {72 mul 300 div} bind def
 /Events
 {
 EventFont setfont
 {
-2 index      % stack X Y STRING X
-3 -1 roll    % stack X STRING X Y
-dup          % stack X STRING X Y Y
+2 index
+3 -1 roll
+dup
 EventSpacing sub
-4 1 roll     % stack X Y' STRING X Y
+4 1 roll
 newpath
 moveto
 show
 } forall
-pop pop        % pop off X & Y
+pop pop
 } bind def
-%---------------------------------------------------------------------
-% Fill a day rect with the current ink:
 /FillDay
 {
 newpath
@@ -449,8 +433,6 @@ DayWidth DayHeight lineto
 closepath
 fill
 } bind def
-%---------------------------------------------------------------------
-% Shade a day with the default background:
 /ShadeDay
 {
 0.85 setgray
@@ -598,26 +580,22 @@ phases: 1
 %%EndComments
 %%BeginProlog
 %%BeginResource: procset PostScript_Calendar 0 0
-/pixel {72 mul 300 div} bind def % 300 dpi only
-%---------------------------------------------------------------------
-% Display text events:  X Y [STRING ...] Events
+/pixel {72 mul 300 div} bind def
 /Events
 {
 EventFont setfont
 {
-2 index      % stack X Y STRING X
-3 -1 roll    % stack X STRING X Y
-dup          % stack X STRING X Y Y
+2 index
+3 -1 roll
+dup
 EventSpacing sub
-4 1 roll     % stack X Y' STRING X Y
+4 1 roll
 newpath
 moveto
 show
 } forall
-pop pop        % pop off X & Y
+pop pop
 } bind def
-%---------------------------------------------------------------------
-% Fill a day rect with the current ink:
 /FillDay
 {
 newpath
@@ -628,8 +606,6 @@ DayWidth DayHeight lineto
 closepath
 fill
 } bind def
-%---------------------------------------------------------------------
-% Shade a day with the default background:
 /ShadeDay
 {
 0.85 setgray
@@ -638,8 +614,6 @@ FillDay
 } bind def
 %%EndResource
 %%BeginResource: procset PostScript_Calendar_Moon 0 0
-%---------------------------------------------------------------------
-% Show the phase of the moon:  PHASE ShowPhase
 /ShowPhase
 {
 newpath
