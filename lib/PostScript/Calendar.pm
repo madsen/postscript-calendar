@@ -23,7 +23,7 @@ use strict;
 use Carp;
 use Date::Calc 5.0 qw(Add_Delta_YM Day_of_Week Day_of_Week_to_Text
                       Days_in_Month Localtime Mktime Month_to_Text);
-use PostScript::File 2.20;      # need use_functions
+use PostScript::File 2.20 qw(str); # need use_functions
 
 =head1 DEPENDENCIES
 
@@ -54,8 +54,10 @@ our @phaseName = qw(NewMoon FirstQuarter FullMoon LastQuarter);
   sub FETCH   { $_[0]->($_[1]) }
 } # end PostScript::Calendar::Interpolation
 
-our (%E, %S, $psFile);
+our (%C, %E, %S, $psFile);
 tie %E, 'PostScript::Calendar::Interpolation', sub { $_[0] }; # eval
+# color:
+tie %C, 'PostScript::Calendar::Interpolation', sub { str(shift) };
 # quoted string:
 tie %S, 'PostScript::Calendar::Interpolation', sub { $psFile->pstr(shift) };
 
@@ -556,6 +558,7 @@ sub generate
 
 /DayHeight $dayHeight def
 /DayWidth $dayWidth def
+/DayBackground 0.85 def
 /TitleSize $titleSize def
 /TitleFont /$self->{titleFont} findfont TitleSize scalefont def
 /LabelSize $dayLabelSize def
@@ -569,7 +572,7 @@ sub generate
 /MiniFont /$self->{miniFont} findfont MiniSize scalefont def
 END_PAGE_INIT
 
-  $ps->use_functions(qw(hLine vLine showCenter showRight));
+  $ps->use_functions(qw(hLine vLine setColor showCenter showRight));
 
   unless ($ps->has_procset('PostScript_Calendar'))
   { $ps->add_procset('PostScript_Calendar', <<'END_FUNCTIONS') }
@@ -609,13 +612,14 @@ END_PAGE_INIT
 } bind def
 
 %---------------------------------------------------------------------
-% Shade a day with the default background:
+% Shade a day:  ShadeDay
 
 /ShadeDay
 {
-  0.85 setgray
+  gsave
+  DayBackground setColor
   FillDay
-  0 setgray
+  grestore
 } bind def
 END_FUNCTIONS
 

@@ -112,9 +112,10 @@ fill
 } bind def
 /ShadeDay
 {
-0.85 setgray
+gsave
+DayBackground setColor
 FillDay
-0 setgray
+grestore
 } bind def
 %%EndResource
 %%EndProlog
@@ -131,6 +132,7 @@ userdict begin
 3 pixel setlinewidth
 /DayHeight 96 def
 /DayWidth 80 def
+/DayBackground 0.85 def
 /TitleSize 14 def
 /TitleFont /Helvetica-iso findfont TitleSize scalefont def
 /LabelSize 14 def
@@ -288,6 +290,7 @@ userdict begin
 3 pixel setlinewidth
 /DayHeight 96 def
 /DayWidth 80 def
+/DayBackground 0.85 def
 /TitleSize 14 def
 /TitleFont /Helvetica-iso findfont TitleSize scalefont def
 /LabelSize 14 def
@@ -445,6 +448,7 @@ userdict begin
 3 pixel setlinewidth
 /DayHeight 96 def
 /DayWidth 80 def
+/DayBackground 0.85 def
 /TitleSize 14 def
 /TitleFont /Helvetica-iso findfont TitleSize scalefont def
 /LabelSize 14 def
@@ -601,6 +605,7 @@ userdict begin
 3 pixel setlinewidth
 /DayHeight 96 def
 /DayWidth 80 def
+/DayBackground 0.85 def
 /TitleSize 14 def
 /TitleFont /Helvetica-iso findfont TitleSize scalefont def
 /LabelSize 14 def
@@ -760,6 +765,7 @@ userdict begin
 3 pixel setlinewidth
 /DayHeight 96 def
 /DayWidth 80 def
+/DayBackground 0.85 def
 /TitleSize 14 def
 /TitleFont /Helvetica-iso findfont TitleSize scalefont def
 /LabelSize 14 def
@@ -918,6 +924,7 @@ userdict begin
 3 pixel setlinewidth
 /DayHeight 96 def
 /DayWidth 80 def
+/DayBackground 0.85 def
 /TitleSize 14 def
 /TitleFont /Helvetica-iso findfont TitleSize scalefont def
 /LabelSize 14 def
@@ -1077,6 +1084,7 @@ userdict begin
 3 pixel setlinewidth
 /DayHeight 96 def
 /DayWidth 80 def
+/DayBackground 0.85 def
 /TitleSize 14 def
 /TitleFont /Helvetica-iso findfont TitleSize scalefont def
 /LabelSize 14 def
@@ -1236,6 +1244,7 @@ userdict begin
 3 pixel setlinewidth
 /DayHeight 96 def
 /DayWidth 80 def
+/DayBackground 0.85 def
 /TitleSize 14 def
 /TitleFont /Helvetica-iso findfont TitleSize scalefont def
 /LabelSize 14 def
@@ -1395,6 +1404,7 @@ userdict begin
 3 pixel setlinewidth
 /DayHeight 96 def
 /DayWidth 80 def
+/DayBackground 0.85 def
 /TitleSize 14 def
 /TitleFont /Helvetica-iso findfont TitleSize scalefont def
 /LabelSize 14 def
@@ -1554,6 +1564,7 @@ userdict begin
 3 pixel setlinewidth
 /DayHeight 96 def
 /DayWidth 80 def
+/DayBackground 0.85 def
 /TitleSize 14 def
 /TitleFont /Helvetica-iso findfont TitleSize scalefont def
 /LabelSize 14 def
@@ -1712,6 +1723,7 @@ userdict begin
 3 pixel setlinewidth
 /DayHeight 96 def
 /DayWidth 80 def
+/DayBackground 0.85 def
 /TitleSize 14 def
 /TitleFont /Helvetica-iso findfont TitleSize scalefont def
 /LabelSize 14 def
@@ -1871,6 +1883,7 @@ userdict begin
 3 pixel setlinewidth
 /DayHeight 96 def
 /DayWidth 80 def
+/DayBackground 0.85 def
 /TitleSize 14 def
 /TitleFont /Helvetica-iso findfont TitleSize scalefont def
 /LabelSize 14 def
