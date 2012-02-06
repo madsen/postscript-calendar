@@ -623,6 +623,7 @@ grestore
 %%BeginResource: procset PostScript_Calendar_Moon 0 0
 /ShowPhase
 {
+gsave
 newpath
 MoonMargin DateSize 2 div add
 DayHeight MoonMargin sub
@@ -631,9 +632,13 @@ DateSize 2 div
 0 360 arc
 closepath
 cvx exec
+grestore
 } bind def
-/NewMoon { fill } bind def
-/FullMoon { gsave 1 setgray fill grestore stroke } bind def
+/NewMoon { MoonDark setColor fill } bind def
+/FullMoon {
+gsave MoonLight setColor fill grestore
+MoonDark setColor stroke
+} bind def
 /FirstQuarter
 {
 FullMoon
@@ -681,6 +686,8 @@ userdict begin
 /EventSpacing 10 def
 /MiniSize 6 def
 /MiniFont /Helvetica-iso findfont MiniSize scalefont def
+/MoonDark 0 def
+/MoonLight 1 def
 /MoonMargin 6 def
 gsave
 424 580 translate

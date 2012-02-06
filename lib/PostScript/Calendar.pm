@@ -634,7 +634,11 @@ END_FUNCTIONS
       $phase = ($phase + 1) % 4;
     } # end while @dates
 
-    $ps->add_to_page("/MoonMargin $self->{moonMargin} def\n");
+    $ps->add_to_page(<<"END_MOON_SETTINGS");
+/MoonDark 0 def
+/MoonLight 1 def
+/MoonMargin $self->{moonMargin} def
+END_MOON_SETTINGS
 
     unless ($ps->has_procset('PostScript_Calendar_Moon'))
     { $ps->add_procset('PostScript_Calendar_Moon', <<'END_MOON_FUNCTIONS') }
@@ -643,6 +647,7 @@ END_FUNCTIONS
 
 /ShowPhase
 {
+  gsave
   newpath
   MoonMargin DateSize 2 div add
   DayHeight MoonMargin sub
@@ -651,10 +656,14 @@ END_FUNCTIONS
   0 360 arc
   closepath
   cvx exec
+  grestore
 } bind def
 
-/NewMoon { fill } bind def
-/FullMoon { gsave 1 setgray fill grestore stroke } bind def
+/NewMoon { MoonDark setColor fill } bind def
+/FullMoon {
+  gsave MoonLight setColor fill grestore
+  MoonDark setColor stroke
+} bind def
 
 /FirstQuarter
 {
