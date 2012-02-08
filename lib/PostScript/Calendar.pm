@@ -572,7 +572,8 @@ sub generate
 /MiniFont /$self->{miniFont} findfont MiniSize scalefont def
 END_PAGE_INIT
 
-  $ps->use_functions(qw(hLine vLine setColor showCenter showRight));
+  $ps->use_functions(qw(hLine vLine setColor showCenter showLeft showLines
+                        showRight));
 
   unless ($ps->has_procset('PostScript_Calendar'))
   { $ps->add_procset('PostScript_Calendar', <<'END_FUNCTIONS') }
@@ -584,17 +585,7 @@ END_PAGE_INIT
 /Events
 {
   EventFont setfont
-  {
-    2 index      % stack X Y STRING X
-    3 -1 roll    % stack X STRING X Y
-    dup          % stack X STRING X Y Y
-    EventSpacing sub
-    4 1 roll     % stack X Y' STRING X Y
-    newpath
-    moveto
-    show
-  } forall
-  pop pop        % pop off X & Y
+  EventSpacing /showLeft showLines
 } bind def
 
 %---------------------------------------------------------------------

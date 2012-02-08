@@ -150,17 +150,7 @@ __DATA__
 /Events
 {
 EventFont setfont
-{
-2 index
-3 -1 roll
-dup
-EventSpacing sub
-4 1 roll
-newpath
-moveto
-show
-} forall
-pop pop
+EventSpacing /showLeft showLines
 } bind def
 /FillDay
 {
@@ -281,17 +271,7 @@ showpage
 /Events
 {
 EventFont setfont
-{
-2 index
-3 -1 roll
-dup
-EventSpacing sub
-4 1 roll
-newpath
-moveto
-show
-} forall
-pop pop
+EventSpacing /showLeft showLines
 } bind def
 /FillDay
 {
@@ -415,17 +395,7 @@ shade_days_of_week: [ 0, 6 ]
 /Events
 {
 EventFont setfont
-{
-2 index
-3 -1 roll
-dup
-EventSpacing sub
-4 1 roll
-newpath
-moveto
-show
-} forall
-pop pop
+EventSpacing /showLeft showLines
 } bind def
 /FillDay
 {
@@ -590,17 +560,7 @@ phases: 1
 /Events
 {
 EventFont setfont
-{
-2 index
-3 -1 roll
-dup
-EventSpacing sub
-4 1 roll
-newpath
-moveto
-show
-} forall
-pop pop
+EventSpacing /showLeft showLines
 } bind def
 /FillDay
 {

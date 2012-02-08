@@ -88,17 +88,7 @@ if ($generateResults) {
 /Events
 {
 EventFont setfont
-{
-2 index
-3 -1 roll
-dup
-EventSpacing sub
-4 1 roll
-newpath
-moveto
-show
-} forall
-pop pop
+EventSpacing /showLeft showLines
 } bind def
 /FillDay
 {
