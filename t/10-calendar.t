@@ -61,7 +61,7 @@ if (@ARGV and $ARGV[0] eq 'gen') {
   open(OUT, '>', '/tmp/10-calendar.t') or die $!;
   printf OUT "#%s\n\n__DATA__\n", '=' x 69;
 } else {
-  plan tests => 4 * 2 + 1;
+  plan tests => 6 * 2 + 1;
 }
 
 require PostScript::Calendar;
@@ -666,6 +666,357 @@ grestore
 gsave
 24 28 translate
 /LastQuarter ShowPhase
+grestore
+TitleFont setfont
+306 742 (November 2010) showCenter
+LabelFont setfont
+64 723 (Sunday) showCenter
+144 723 (Monday) showCenter
+224 723 (Tuesday) showCenter
+304 723 (Wednesday) showCenter
+384 723 (Thursday) showCenter
+464 723 (Friday) showCenter
+544 723 (Saturday) showCenter
+DateFont setfont
+180 702 (1) showRight
+260 702 (2) showRight
+340 702 (3) showRight
+420 702 (4) showRight
+500 702 (5) showRight
+580 702 (6) showRight
+100 564 (7) showRight
+180 564 (8) showRight
+260 564 (9) showRight
+340 564 (10) showRight
+420 564 (11) showRight
+500 564 (12) showRight
+580 564 (13) showRight
+100 426 (14) showRight
+180 426 (15) showRight
+260 426 (16) showRight
+340 426 (17) showRight
+420 426 (18) showRight
+500 426 (19) showRight
+580 426 (20) showRight
+100 288 (21) showRight
+180 288 (22) showRight
+260 288 (23) showRight
+340 288 (24) showRight
+420 288 (25) showRight
+500 288 (26) showRight
+580 288 (27) showRight
+100 150 (28) showRight
+180 150 (29) showRight
+260 150 (30) showRight
+166 138 718 {
+560 24 3 -1 roll hLine
+} for
+104 80 544 {
+709 exch 28 vLine
+} for
+newpath
+24 737 moveto
+560 0 rlineto
+0 -709 rlineto
+-560 0 rlineto
+closepath stroke
+%%PageTrailer
+end
+pagelevel restore
+showpage
+%%EOF
+---
+
+:: 2010-11 custom colors
+shade_color: [1, 0, 0]
+shade_days_of_week: [0, 6]
+->shade( {shade_color => 0.5}, 6 );
+->shade( 5 );
+->shade( {shade_color => [0, 1, 0]}, 12 );
+===
+%!PS-Adobe-3.0
+%%Orientation: Portrait
+%%DocumentNeededResources:
+%%+ font Courier-Bold Helvetica Helvetica-Oblique
+%%DocumentSuppliedResources:
+%%+ procset PostScript_Calendar 0 0
+%%Title: (November 2010)
+%%LanguageLevel: 2
+%%EndComments
+%%BeginProlog
+%%BeginResource: procset PostScript_Calendar 0 0
+/pixel {72 mul 300 div} bind def
+/Events
+{
+EventFont setfont
+EventSpacing /showLeft showLines
+} bind def
+/FillDay
+{
+newpath
+0 0 moveto
+DayWidth 0 lineto
+DayWidth DayHeight lineto
+0 DayHeight lineto
+closepath
+fill
+} bind def
+/ShadeDay
+{
+gsave
+DayBackground setColor
+FillDay
+grestore
+} bind def
+%%EndResource
+%%EndProlog
+%%BeginSetup
+%%EndSetup
+%%Page: 1 1
+%%PageBoundingBox: 24 28 588 756
+%%BeginPageSetup
+/pagelevel save def
+userdict begin
+%%EndPageSetup
+0 setlinecap
+0 setlinejoin
+3 pixel setlinewidth
+/DayHeight 138 def
+/DayWidth 80 def
+/DayBackground [ 1 0 0 ] def
+/TitleSize 14 def
+/TitleFont /Helvetica-iso findfont TitleSize scalefont def
+/LabelSize 14 def
+/LabelFont /Helvetica-iso findfont LabelSize scalefont def
+/DateSize 14 def
+/DateFont /Helvetica-Oblique-iso findfont DateSize scalefont def
+/EventSize 8 def
+/EventFont /Helvetica-iso findfont EventSize scalefont def
+/EventSpacing 10 def
+/MiniSize 6 def
+/MiniFont /Helvetica-iso findfont MiniSize scalefont def
+gsave
+424 580 translate
+ShadeDay
+grestore
+<<
+/DayBackground 0.5
+>> begin
+gsave
+504 580 translate
+ShadeDay
+grestore
+end
+gsave
+24 442 translate
+ShadeDay
+grestore
+<<
+/DayBackground [ 0 1 0 ]
+>> begin
+gsave
+424 442 translate
+ShadeDay
+grestore
+end
+gsave
+504 442 translate
+ShadeDay
+grestore
+gsave
+24 304 translate
+ShadeDay
+grestore
+gsave
+504 304 translate
+ShadeDay
+grestore
+gsave
+24 166 translate
+ShadeDay
+grestore
+gsave
+504 166 translate
+ShadeDay
+grestore
+gsave
+24 28 translate
+ShadeDay
+grestore
+TitleFont setfont
+306 742 (November 2010) showCenter
+LabelFont setfont
+64 723 (Sunday) showCenter
+144 723 (Monday) showCenter
+224 723 (Tuesday) showCenter
+304 723 (Wednesday) showCenter
+384 723 (Thursday) showCenter
+464 723 (Friday) showCenter
+544 723 (Saturday) showCenter
+DateFont setfont
+180 702 (1) showRight
+260 702 (2) showRight
+340 702 (3) showRight
+420 702 (4) showRight
+500 702 (5) showRight
+580 702 (6) showRight
+100 564 (7) showRight
+180 564 (8) showRight
+260 564 (9) showRight
+340 564 (10) showRight
+420 564 (11) showRight
+500 564 (12) showRight
+580 564 (13) showRight
+100 426 (14) showRight
+180 426 (15) showRight
+260 426 (16) showRight
+340 426 (17) showRight
+420 426 (18) showRight
+500 426 (19) showRight
+580 426 (20) showRight
+100 288 (21) showRight
+180 288 (22) showRight
+260 288 (23) showRight
+340 288 (24) showRight
+420 288 (25) showRight
+500 288 (26) showRight
+580 288 (27) showRight
+100 150 (28) showRight
+180 150 (29) showRight
+260 150 (30) showRight
+166 138 718 {
+560 24 3 -1 roll hLine
+} for
+104 80 544 {
+709 exch 28 vLine
+} for
+newpath
+24 737 moveto
+560 0 rlineto
+0 -709 rlineto
+-560 0 rlineto
+closepath stroke
+%%PageTrailer
+end
+pagelevel restore
+showpage
+%%EOF
+---
+
+:: 2010-11 custom moon colors
+shade_days_of_week: [0, 6]
+moon_dark: 0.25
+moon_light: 0.75
+->shade( {shade_color => 0.5, moon_dark => [1,0,0], moon_light => [0,1,0]}, 6 );
+->shade( {shade_color => [0, 1, 0], moon_light => 0.875 }, 12 );
+===
+%!PS-Adobe-3.0
+%%Orientation: Portrait
+%%DocumentNeededResources:
+%%+ font Courier-Bold Helvetica Helvetica-Oblique
+%%DocumentSuppliedResources:
+%%+ procset PostScript_Calendar 0 0
+%%Title: (November 2010)
+%%LanguageLevel: 2
+%%EndComments
+%%BeginProlog
+%%BeginResource: procset PostScript_Calendar 0 0
+/pixel {72 mul 300 div} bind def
+/Events
+{
+EventFont setfont
+EventSpacing /showLeft showLines
+} bind def
+/FillDay
+{
+newpath
+0 0 moveto
+DayWidth 0 lineto
+DayWidth DayHeight lineto
+0 DayHeight lineto
+closepath
+fill
+} bind def
+/ShadeDay
+{
+gsave
+DayBackground setColor
+FillDay
+grestore
+} bind def
+%%EndResource
+%%EndProlog
+%%BeginSetup
+%%EndSetup
+%%Page: 1 1
+%%PageBoundingBox: 24 28 588 756
+%%BeginPageSetup
+/pagelevel save def
+userdict begin
+%%EndPageSetup
+0 setlinecap
+0 setlinejoin
+3 pixel setlinewidth
+/DayHeight 138 def
+/DayWidth 80 def
+/DayBackground 0.85 def
+/TitleSize 14 def
+/TitleFont /Helvetica-iso findfont TitleSize scalefont def
+/LabelSize 14 def
+/LabelFont /Helvetica-iso findfont LabelSize scalefont def
+/DateSize 14 def
+/DateFont /Helvetica-Oblique-iso findfont DateSize scalefont def
+/EventSize 8 def
+/EventFont /Helvetica-iso findfont EventSize scalefont def
+/EventSpacing 10 def
+/MiniSize 6 def
+/MiniFont /Helvetica-iso findfont MiniSize scalefont def
+<<
+/DayBackground 0.5
+/MoonDark [ 1 0 0 ]
+/MoonLight [ 0 1 0 ]
+>> begin
+gsave
+504 580 translate
+ShadeDay
+grestore
+end
+gsave
+24 442 translate
+ShadeDay
+grestore
+<<
+/DayBackground [ 0 1 0 ]
+/MoonLight 0.875
+>> begin
+gsave
+424 442 translate
+ShadeDay
+grestore
+end
+gsave
+504 442 translate
+ShadeDay
+grestore
+gsave
+24 304 translate
+ShadeDay
+grestore
+gsave
+504 304 translate
+ShadeDay
+grestore
+gsave
+24 166 translate
+ShadeDay
+grestore
+gsave
+504 166 translate
+ShadeDay
+grestore
+gsave
+24 28 translate
+ShadeDay
 grestore
 TitleFont setfont
 306 742 (November 2010) showCenter
