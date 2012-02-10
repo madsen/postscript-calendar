@@ -57,7 +57,7 @@ our @phaseName = qw(NewMoon FirstQuarter FullMoon LastQuarter);
 our (%C, %E, %S, $psFile);
 tie %E, 'PostScript::Calendar::Interpolation', sub { $_[0] }; # eval
 # color:
-tie %C, 'PostScript::Calendar::Interpolation', sub { str(shift) };
+tie %C, 'PostScript::Calendar::Interpolation', sub { _fmt_color(shift) };
 # quoted string:
 tie %S, 'PostScript::Calendar::Interpolation', sub { $psFile->pstr(shift) };
 
@@ -72,6 +72,28 @@ sub firstdef
 
   $_[-1];
 } # end firstdef
+
+#---------------------------------------------------------------------
+sub _fmt_color
+{
+  my $color = shift;
+
+  if (not ref $color and $color =~ /^#((?:[0-9a-f]{3})+)$/i) {
+    my $hexcolor = $1;
+
+    my $digits = int(length($hexcolor) / 3); # Number of digits per color
+    my $max    = hex('F' x $digits);         # Max intensity per color
+
+    $color = [ map {
+      my $n = sprintf('%.3f',
+                      hex(substr($hexcolor, $_ * $digits, $digits)) / $max);
+      $n =~ s/\.?0+$//;
+      $n
+    } 0 .. 2 ];
+  } # end if color as hex triplet
+
+  str($color);
+} # end _fmt_color
 
 #---------------------------------------------------------------------
 # Round to an integer, but preserve undef:
@@ -102,6 +124,7 @@ sub evTxt        () { 0 }
 sub evPS         () { 1 }
 sub evBackground () { 2 }
 sub evTopMargin  () { 3 }
+sub evDict       () { 4 }
 
 ## use critic
 
@@ -149,7 +172,10 @@ sub new
     eventRightMar => firstdef($p{event_right_margin}, $p{event_margin}, 2),
     miniSideMar   => firstdef($p{mini_side_margins}, $p{mini_margin}, 4),
     miniTopMar    => firstdef($p{mini_top_margin},   $p{mini_margin}, 4),
+    moonDark      => firstdef($p{moon_dark}, 0),
+    moonLight     => firstdef($p{moon_light}, 1),
     moonMargin    => firstdef($p{moon_margin}, 6),
+    shadeColor    => firstdef($p{shade_color}, 0.85),
   }, $class;
 
   my $days     = $self->{days};
@@ -269,14 +295,38 @@ sub add_event
 } # end add_event
 
 #---------------------------------------------------------------------
+sub _set_colors
+{
+  my $hash = shift;
+
+  while (@_) {
+    my $key   = shift;
+    my $color = shift;
+
+    $hash->{$key} = _fmt_color($color) if defined $color;
+  }
+} # end _set_colors
+
+#---------------------------------------------------------------------
 sub shade
 {
   my $self = shift @_;
 
+  my $options = ref($_[0]) ? shift @_ : {};
+
+  my %dict;
+  _set_colors(\%dict,
+    DayBackground => $options->{shade_color},
+    MoonDark      => $options->{moon_dark},
+    MoonLight     => $options->{moon_light},
+  );
+
   my $events = $self->{events};
 
-  while (@_) {
-    $events->[shift @_][evBackground] = "ShadeDay";
+  for my $date (@_) {
+    $events->[$date][evBackground] = "ShadeDay";
+
+    @{ $events->[$date][evDict] }{keys %dict} = values %dict if %dict;
   }
 } # end shade
 
@@ -288,6 +338,9 @@ sub shade_days_of_week
   my ($year, $month) = @$self{qw(year month)};
 
   my (@shade, @dates);
+
+  # Copy options over to shade:
+  push @dates, shift @_ if ref $_[0];
 
   # @shade indicates which days of week to shade
   foreach (@_) { $shade[$_ % 7] = 1 }
@@ -409,17 +462,29 @@ sub print_events
   unshift @{$events->[evPS]}, $events->[evBackground]
       if $events->[evBackground];
 
+  my $dict = $events->[evDict];
+
+  if ($special and $events->[evPS]) {
+    $dict = { $dict ? %$dict : () };
+    $dict->{DayHeight} = $height;
+  }
+
+  if ($dict) {
+    $ps->set_min_langlevel(2);  # using dictionary literals
+    $ps->add_to_page(join("\n",
+      '<<',
+      ( map { "/$_ $dict->{$_}" } sort keys %$dict ),
+      ">> begin\n"
+    ));
+  } # end if dictionary
+
   # Handle PostScript events:
   if ($events->[evPS]) {
-    $ps->add_to_page("gsave\n$x $y translate\n");
-
-    $ps->add_to_page("1 dict begin\n/DayHeight $height def\n")
-        if $special;
-
-    $ps->add_to_page(join "\n", @{ $events->[evPS] }, '');
-
-    $ps->add_to_page("end\n") if $special;
-    $ps->add_to_page("grestore\n");
+    $ps->add_to_page(join "\n",
+      "gsave\n$x $y translate",
+      @{ $events->[evPS] },
+      "grestore\n"
+    );
   } # end if we have PostScript events
 
   # Handle text events:
@@ -434,6 +499,8 @@ sub print_events
 $E{$x + $eventLeftMar} $E{$y + $useY - $eventSize} [$text] Events
 END_EVENTS
   } # end if we have text events
+
+  $ps->add_to_page("end\n") if $dict;
 } # end print_events
 
 #---------------------------------------------------------------------
@@ -558,7 +625,7 @@ sub generate
 
 /DayHeight $dayHeight def
 /DayWidth $dayWidth def
-/DayBackground 0.85 def
+/DayBackground $C{$self->{shadeColor}} def
 /TitleSize $titleSize def
 /TitleFont /$self->{titleFont} findfont TitleSize scalefont def
 /LabelSize $dayLabelSize def
@@ -626,8 +693,8 @@ END_FUNCTIONS
     } # end while @dates
 
     $ps->add_to_page(<<"END_MOON_SETTINGS");
-/MoonDark 0 def
-/MoonLight 1 def
+/MoonDark $C{$self->{moonDark}} def
+/MoonLight $C{$self->{moonLight}} def
 /MoonMargin $self->{moonMargin} def
 END_MOON_SETTINGS
 
@@ -803,6 +870,13 @@ from 1 to 12.  Days of the week can be specified as 0 to 7 (where
 Sunday is either 0 or 7, Monday is 1, etc.).
 
 All dimensions are specified in PostScript points (72 per inch).
+
+Colors can be specified either as a number in the range 0 to 1 (where
+0 is black and 1 is white), or an arrayref of three numbers
+S<C<[ Red, Green, Blue ]>> where each number is in the range 0 to 1.
+
+In addition, you can specify an RGB color in the HTML hex triplet form
+prefixed by C<#> (like C<#FFFF00> or C<#FF0> for yellow).
 
 =for Pod::Loom-sort_method
 new
@@ -980,15 +1054,32 @@ C<mini_margin>.
 The space (in points) to leave on each side of mini calendars.
 Defaults to C<mini_margin>.
 
+=item C<moon_dark>
+
+The color to use for the dark portions of the moon icon.
+Defaults to 0 (black).
+
+=item C<moon_light>
+
+The color to use for the light portions of the moon icon.
+Defaults to 1 (white).
+
 =item C<moon_margin>
 
 Space to leave above and to the left of the moon icon.  Defaults to 6.
+
+=item C<shade_color>
+
+The default background color used by the C<shade> method.  Defaults to 0.85
+(a light gray).
 
 =item C<shade_days_of_week>
 
 An arrayref of days of the week to be passed to the
 C<shade_days_of_week> method.  (I found it convenient to be able to pass
 this to the constructor instead of making a separate method call.)
+
+The first element of the arrayref may be a hashref of options.
 
 =item C<margin>
 
@@ -1039,18 +1130,43 @@ may contain newlines to force line breaks.
 
 =method shade
 
-  $cal->shade($date, ...)
+  $cal->shade( [\%options,] $date, ...)
 
-This colors the background of the specified date(s) a light gray,
+This colors the background of the specified date(s),
 where C<$date> is the day of the month.  Any number of dates can be
 given.
 
+Optionally, the first argument may be a hashref containing options.
+The recognized options are:
+
+=over
+
+=item C<shade_color>
+
+The color to shade the day's background.  Defaults to the
+value passed to the constructor.
+
+=item C<moon_dark>
+
+The color to use for the dark portions of the moon phase indicator
+(if present).  Defaults to the value passed to the constructor.
+
+=item C<moon_light>
+
+The color to use for the light portions of the moon phase indicator
+(if present).  Defaults to the value passed to the constructor.
+
+=back
+
 =method shade_days_of_week
 
-  $cal->shade_days_of_week($day, ...)
+  $cal->shade_days_of_week( [\%options,] $day, ...)
 
 This calls C<shade> for all dates that fall on the specified day(s) of
 the week.  Each C<$day> should be 0-7 (where Sunday is either 0 or 7).
+
+Optionally, the first argument may be a hashref containing options.
+See L</shade> for the available options.
 
 =method generate
 
