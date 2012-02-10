@@ -56,8 +56,6 @@ our @phaseName = qw(NewMoon FirstQuarter FullMoon LastQuarter);
 
 our (%C, %E, %S, $psFile);
 tie %E, 'PostScript::Calendar::Interpolation', sub { $_[0] }; # eval
-# color:
-tie %C, 'PostScript::Calendar::Interpolation', sub { _fmt_color(shift) };
 # quoted string:
 tie %S, 'PostScript::Calendar::Interpolation', sub { $psFile->pstr(shift) };
 
@@ -172,10 +170,10 @@ sub new
     eventRightMar => firstdef($p{event_right_margin}, $p{event_margin}, 2),
     miniSideMar   => firstdef($p{mini_side_margins}, $p{mini_margin}, 4),
     miniTopMar    => firstdef($p{mini_top_margin},   $p{mini_margin}, 4),
-    moonDark      => firstdef($p{moon_dark}, 0),
-    moonLight     => firstdef($p{moon_light}, 1),
+    moonDark      => _fmt_color(firstdef($p{moon_dark}, 0)),
+    moonLight     => _fmt_color(firstdef($p{moon_light}, 1)),
     moonMargin    => firstdef($p{moon_margin}, 6),
-    shadeColor    => firstdef($p{shade_color}, 0.85),
+    shadeColor    => _fmt_color(firstdef($p{shade_color}, 0.85)),
   }, $class;
 
   my $days     = $self->{days};
@@ -625,7 +623,7 @@ sub generate
 
 /DayHeight $dayHeight def
 /DayWidth $dayWidth def
-/DayBackground $C{$self->{shadeColor}} def
+/DayBackground $self->{shadeColor} def
 /TitleSize $titleSize def
 /TitleFont /$self->{titleFont} findfont TitleSize scalefont def
 /LabelSize $dayLabelSize def
@@ -693,8 +691,8 @@ END_FUNCTIONS
     } # end while @dates
 
     $ps->add_to_page(<<"END_MOON_SETTINGS");
-/MoonDark $C{$self->{moonDark}} def
-/MoonLight $C{$self->{moonLight}} def
+/MoonDark $self->{moonDark} def
+/MoonLight $self->{moonLight} def
 /MoonMargin $self->{moonMargin} def
 END_MOON_SETTINGS
 
