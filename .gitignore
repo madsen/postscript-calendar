@@ -1,4 +1,6 @@
 /blib/
+/example/*.pdf
+/example/*.png
 /example/*.ps
 /META.yml
 /MYMETA.yml

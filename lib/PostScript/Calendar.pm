@@ -844,6 +844,16 @@ sub output
 #---------------------------------------------------------------------
 sub ps_file { $_[0]->{psFile} }
 
+#---------------------------------------------------------------------
+sub get__PostScript_File
+{
+  my $self = shift @_;
+
+  $self->generate unless $self->{generated};
+
+  $self->{psFile};
+} # end output
+
 #=====================================================================
 # Package Return Value:
 
@@ -858,6 +868,10 @@ __END__
   my $cal = PostScript::Calendar->new($year, $month, phases => 1,
                                       mini_calendars => 'before');
   $cal->output('filename');
+
+  # Or, if you want PDF output instead of PostScript:
+  use PostScript::Convert;
+  psconvert($cal, "filename.pdf");
 
 
 =head1 DESCRIPTION
@@ -1237,6 +1251,7 @@ compute_grid
 ev[A-Z]\w+
 firstdef
 get_metrics
+get__PostScript_File
 print_calendar
 print_events
 print_mini_calendar

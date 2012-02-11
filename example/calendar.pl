@@ -59,6 +59,8 @@ foreach (@ARGV) {
 } # end foreach @ARGV
 
 #---------------------------------------------------------------------
+my $obj;
+
 if ($year) {
   # Create one page for each month in a full year:
   $output = sprintf "%04d", $year unless defined $output;
@@ -73,16 +75,26 @@ if ($year) {
     $ps ||= $cal->ps_file;
   } # end for $month 1 to 12
 
-  print "Saving $output.ps...\n";
-  $ps->output($output);
+  $obj = $ps;
 } else {
   # Make a calendar for just one month:
   $output = sprintf "%04d-%02d", @ARGV unless defined $output;
 
   my $cal = PostScript::Calendar->new(@ARGV);
 
+  $obj = $cal;
+}
+
+# Save the calendar:
+if ($output =~ /\.(?:pdf|png)\z/i) {
+  # If PDF or PNG output is requested, use PostScript::Convert:
+  print "Saving $output...\n";
+  require PostScript::Convert;
+  PostScript::Convert::psconvert($obj, $output);
+} else {
+  # Otherwise, just save the PostScript code:
   print "Saving $output.ps...\n";
-  $cal->output($output);
+  $obj->output($output);
 }
 
 __END__
@@ -117,6 +129,8 @@ Sunday is either 0 or 7, Monday is 1, etc.).
 
 All dimensions are specified in PostScript points (72 per inch).
 
+If the output filename (specified with C<--output>) ends in C<.pdf> or
+C<.png>, it uses PostScript::Convert to generate the requested format.
 
 =head1 AUTHOR
 

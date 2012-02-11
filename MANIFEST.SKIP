@@ -20,5 +20,7 @@
 ^Build$
 ^dist\.ini$
 ^t/testing/
+example/.*\.pdf$
+example/.*\.png$
 example/.*\.ps$
 ^tools/loom\.pl
