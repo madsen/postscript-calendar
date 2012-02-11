@@ -1,7 +1,8 @@
 Revision history for PostScript::Calendar
 
 1.01   NOT
-	- New constructor parameters: moon_dark, moon_light, & shade_color
+	- New constructor parameters: border_width, grid, grid_width,
+	  moon_dark, moon_light, & shade_color
 	- The shade methods can now take options to customize the color
 	- Use the function library provided by PostScript::File 2.20
 	- All comments are stripped from the generated PostScript

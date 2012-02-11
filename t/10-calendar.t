@@ -181,7 +181,6 @@ userdict begin
 %%EndPageSetup
 0 setlinecap
 0 setlinejoin
-3 pixel setlinewidth
 /DayHeight 138 def
 /DayWidth 80 def
 /DayBackground 0.85 def
@@ -235,12 +234,14 @@ DateFont setfont
 500 288 (26) showRight
 580 288 (27) showRight
 100 150 (28) showRight
+0.72 setlinewidth
 166 138 718 {
 560 24 3 -1 roll hLine
 } for
 104 80 544 {
 709 exch 28 vLine
 } for
+0.72 setlinewidth
 newpath
 24 737 moveto
 560 0 rlineto
@@ -302,7 +303,6 @@ userdict begin
 %%EndPageSetup
 0 setlinecap
 0 setlinejoin
-3 pixel setlinewidth
 /DayHeight 138 def
 /DayWidth 80 def
 /DayBackground 0.85 def
@@ -357,12 +357,14 @@ DateFont setfont
 100 150 (27) showRight
 180 150 (28) showRight
 260 150 (29) showRight
+0.72 setlinewidth
 166 138 718 {
 560 24 3 -1 roll hLine
 } for
 104 80 544 {
 709 exch 28 vLine
 } for
+0.72 setlinewidth
 newpath
 24 737 moveto
 560 0 rlineto
@@ -426,7 +428,6 @@ userdict begin
 %%EndPageSetup
 0 setlinecap
 0 setlinejoin
-3 pixel setlinewidth
 /DayHeight 138 def
 /DayWidth 80 def
 /DayBackground 0.85 def
@@ -521,12 +522,14 @@ DateFont setfont
 260 150 (29) showRight
 340 150 (30) showRight
 420 150 (31) showRight
+0.72 setlinewidth
 166 138 718 {
 560 24 3 -1 roll hLine
 } for
 104 80 544 {
 709 exch 28 vLine
 } for
+0.72 setlinewidth
 newpath
 24 737 moveto
 560 0 rlineto
@@ -584,6 +587,7 @@ grestore
 /ShowPhase
 {
 gsave
+3 pixel setlinewidth
 newpath
 MoonMargin DateSize 2 div add
 DayHeight MoonMargin sub
@@ -631,7 +635,6 @@ userdict begin
 %%EndPageSetup
 0 setlinecap
 0 setlinejoin
-3 pixel setlinewidth
 /DayHeight 138 def
 /DayWidth 80 def
 /DayBackground 0.85 def
@@ -708,12 +711,14 @@ DateFont setfont
 100 150 (28) showRight
 180 150 (29) showRight
 260 150 (30) showRight
+0.72 setlinewidth
 166 138 718 {
 560 24 3 -1 roll hLine
 } for
 104 80 544 {
 709 exch 28 vLine
 } for
+0.72 setlinewidth
 newpath
 24 737 moveto
 560 0 rlineto
@@ -780,7 +785,6 @@ userdict begin
 %%EndPageSetup
 0 setlinecap
 0 setlinejoin
-3 pixel setlinewidth
 /DayHeight 138 def
 /DayWidth 80 def
 /DayBackground [ 1 0 0 ] def
@@ -884,12 +888,14 @@ DateFont setfont
 100 150 (28) showRight
 180 150 (29) showRight
 260 150 (30) showRight
+0.72 setlinewidth
 166 138 718 {
 560 24 3 -1 roll hLine
 } for
 104 80 544 {
 709 exch 28 vLine
 } for
+0.72 setlinewidth
 newpath
 24 737 moveto
 560 0 rlineto
@@ -956,7 +962,6 @@ userdict begin
 %%EndPageSetup
 0 setlinecap
 0 setlinejoin
-3 pixel setlinewidth
 /DayHeight 138 def
 /DayWidth 80 def
 /DayBackground 0.85 def
@@ -1059,12 +1064,14 @@ DateFont setfont
 100 150 (28) showRight
 180 150 (29) showRight
 260 150 (30) showRight
+0.72 setlinewidth
 166 138 718 {
 560 24 3 -1 roll hLine
 } for
 104 80 544 {
 709 exch 28 vLine
 } for
+0.72 setlinewidth
 newpath
 24 737 moveto
 560 0 rlineto

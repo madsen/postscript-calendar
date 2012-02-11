@@ -119,7 +119,6 @@ userdict begin
 %%EndPageSetup
 0 setlinecap
 0 setlinejoin
-3 pixel setlinewidth
 /DayHeight 96 def
 /DayWidth 80 def
 /DayBackground 0.85 def
@@ -253,12 +252,14 @@ DateFont setfont
 500 318 (29) showRight
 580 318 (30) showRight
 100 222 (31) showRight
+0.72 setlinewidth
 238 96 718 {
 560 24 3 -1 roll hLine
 } for
 104 80 544 {
 595 exch 142 vLine
 } for
+0.72 setlinewidth
 newpath
 24 737 moveto
 560 0 rlineto
@@ -277,7 +278,6 @@ userdict begin
 %%EndPageSetup
 0 setlinecap
 0 setlinejoin
-3 pixel setlinewidth
 /DayHeight 96 def
 /DayWidth 80 def
 /DayBackground 0.85 def
@@ -411,12 +411,14 @@ DateFont setfont
 500 414 (26) showRight
 580 414 (27) showRight
 100 318 (28) showRight
+0.72 setlinewidth
 334 96 718 {
 560 24 3 -1 roll hLine
 } for
 104 80 544 {
 499 exch 238 vLine
 } for
+0.72 setlinewidth
 newpath
 24 737 moveto
 560 0 rlineto
@@ -435,7 +437,6 @@ userdict begin
 %%EndPageSetup
 0 setlinecap
 0 setlinejoin
-3 pixel setlinewidth
 /DayHeight 96 def
 /DayWidth 80 def
 /DayBackground 0.85 def
@@ -568,12 +569,14 @@ DateFont setfont
 180 318 (29) showRight
 260 318 (30) showRight
 340 318 (31) showRight
+0.72 setlinewidth
 334 96 718 {
 560 24 3 -1 roll hLine
 } for
 104 80 544 {
 499 exch 238 vLine
 } for
+0.72 setlinewidth
 newpath
 24 737 moveto
 560 0 rlineto
@@ -592,7 +595,6 @@ userdict begin
 %%EndPageSetup
 0 setlinecap
 0 setlinejoin
-3 pixel setlinewidth
 /DayHeight 96 def
 /DayWidth 80 def
 /DayBackground 0.85 def
@@ -728,12 +730,14 @@ DateFont setfont
 340 318 (28) showRight
 420 318 (29) showRight
 500 318 (30) showRight
+0.72 setlinewidth
 334 96 718 {
 560 24 3 -1 roll hLine
 } for
 104 80 544 {
 499 exch 238 vLine
 } for
+0.72 setlinewidth
 newpath
 24 737 moveto
 560 0 rlineto
@@ -752,7 +756,6 @@ userdict begin
 %%EndPageSetup
 0 setlinecap
 0 setlinejoin
-3 pixel setlinewidth
 /DayHeight 96 def
 /DayWidth 80 def
 /DayBackground 0.85 def
@@ -887,12 +890,14 @@ DateFont setfont
 580 318 (29) showRight
 100 222 (30) showRight
 180 222 (31) showRight
+0.72 setlinewidth
 238 96 718 {
 560 24 3 -1 roll hLine
 } for
 104 80 544 {
 595 exch 142 vLine
 } for
+0.72 setlinewidth
 newpath
 24 737 moveto
 560 0 rlineto
@@ -911,7 +916,6 @@ userdict begin
 %%EndPageSetup
 0 setlinecap
 0 setlinejoin
-3 pixel setlinewidth
 /DayHeight 96 def
 /DayWidth 80 def
 /DayBackground 0.85 def
@@ -1047,12 +1051,14 @@ DateFont setfont
 180 318 (28) showRight
 260 318 (29) showRight
 340 318 (30) showRight
+0.72 setlinewidth
 334 96 718 {
 560 24 3 -1 roll hLine
 } for
 104 80 544 {
 499 exch 238 vLine
 } for
+0.72 setlinewidth
 newpath
 24 737 moveto
 560 0 rlineto
@@ -1071,7 +1077,6 @@ userdict begin
 %%EndPageSetup
 0 setlinecap
 0 setlinejoin
-3 pixel setlinewidth
 /DayHeight 96 def
 /DayWidth 80 def
 /DayBackground 0.85 def
@@ -1207,12 +1212,14 @@ DateFont setfont
 420 318 (29) showRight
 500 318 (30) showRight
 580 318 (31) showRight
+0.72 setlinewidth
 334 96 718 {
 560 24 3 -1 roll hLine
 } for
 104 80 544 {
 499 exch 238 vLine
 } for
+0.72 setlinewidth
 newpath
 24 737 moveto
 560 0 rlineto
@@ -1231,7 +1238,6 @@ userdict begin
 %%EndPageSetup
 0 setlinecap
 0 setlinejoin
-3 pixel setlinewidth
 /DayHeight 96 def
 /DayWidth 80 def
 /DayBackground 0.85 def
@@ -1367,12 +1373,14 @@ DateFont setfont
 100 318 (29) showRight
 180 318 (30) showRight
 260 318 (31) showRight
+0.72 setlinewidth
 334 96 718 {
 560 24 3 -1 roll hLine
 } for
 104 80 544 {
 499 exch 238 vLine
 } for
+0.72 setlinewidth
 newpath
 24 737 moveto
 560 0 rlineto
@@ -1391,7 +1399,6 @@ userdict begin
 %%EndPageSetup
 0 setlinecap
 0 setlinejoin
-3 pixel setlinewidth
 /DayHeight 96 def
 /DayWidth 80 def
 /DayBackground 0.85 def
@@ -1527,12 +1534,14 @@ DateFont setfont
 260 318 (28) showRight
 340 318 (29) showRight
 420 318 (30) showRight
+0.72 setlinewidth
 334 96 718 {
 560 24 3 -1 roll hLine
 } for
 104 80 544 {
 499 exch 238 vLine
 } for
+0.72 setlinewidth
 newpath
 24 737 moveto
 560 0 rlineto
@@ -1551,7 +1560,6 @@ userdict begin
 %%EndPageSetup
 0 setlinecap
 0 setlinejoin
-3 pixel setlinewidth
 /DayHeight 96 def
 /DayWidth 80 def
 /DayBackground 0.85 def
@@ -1686,12 +1694,14 @@ DateFont setfont
 500 318 (29) showRight
 580 318 (30) showRight
 100 222 (31) showRight
+0.72 setlinewidth
 238 96 718 {
 560 24 3 -1 roll hLine
 } for
 104 80 544 {
 595 exch 142 vLine
 } for
+0.72 setlinewidth
 newpath
 24 737 moveto
 560 0 rlineto
@@ -1710,7 +1720,6 @@ userdict begin
 %%EndPageSetup
 0 setlinecap
 0 setlinejoin
-3 pixel setlinewidth
 /DayHeight 96 def
 /DayWidth 80 def
 /DayBackground 0.85 def
@@ -1846,12 +1855,14 @@ DateFont setfont
 100 318 (28) showRight
 180 318 (29) showRight
 260 318 (30) showRight
+0.72 setlinewidth
 334 96 718 {
 560 24 3 -1 roll hLine
 } for
 104 80 544 {
 499 exch 238 vLine
 } for
+0.72 setlinewidth
 newpath
 24 737 moveto
 560 0 rlineto
@@ -1870,7 +1881,6 @@ userdict begin
 %%EndPageSetup
 0 setlinecap
 0 setlinejoin
-3 pixel setlinewidth
 /DayHeight 96 def
 /DayWidth 80 def
 /DayBackground 0.85 def
@@ -2006,12 +2016,14 @@ DateFont setfont
 340 318 (29) showRight
 420 318 (30) showRight
 500 318 (31) showRight
+0.72 setlinewidth
 334 96 718 {
 560 24 3 -1 roll hLine
 } for
 104 80 544 {
 499 exch 238 vLine
 } for
+0.72 setlinewidth
 newpath
 24 737 moveto
 560 0 rlineto

@@ -139,6 +139,8 @@ sub new
     condense  => $p{condense},
     border    => firstdef($p{border}, 1),
     dayHeight => round($p{day_height}),
+    grid      => firstdef($p{grid}, 1),
+    gridWidth => firstdef($p{grid_width}, 0.72), # 3 pixels at 300dpi
     mini      => $p{mini_calendars},
     phases    => $p{phases},
     title     => firstdef($p{title},
@@ -163,6 +165,7 @@ sub new
     miniFont  => $p{mini_font} || 'Helvetica-iso',
     miniSize  => $p{mini_size} || 6,
     miniSkip  => firstdef($p{mini_skip}, 3),
+    borderWidth  => firstdef($p{border_width}, 0.72), # 3 pixels at 300dpi
     dateRightMar => firstdef($p{date_right_margin}, 4),
     dateTopMar   => firstdef($p{date_top_margin},   2),
     eventTopMar   => firstdef($p{event_top_margin},   $p{event_margin}, 2),
@@ -619,7 +622,6 @@ sub generate
   $ps->add_to_page(<<"END_PAGE_INIT");
 0 setlinecap
 0 setlinejoin
-3 pixel setlinewidth
 
 /DayHeight $dayHeight def
 /DayWidth $dayWidth def
@@ -704,6 +706,7 @@ END_MOON_SETTINGS
 /ShowPhase
 {
   gsave
+  3 pixel setlinewidth
   newpath
   MoonMargin DateSize 2 div add
   DayHeight MoonMargin sub
@@ -798,20 +801,22 @@ END_SPLIT_LINE
     dateTopMar => $self->{dateTopMar},
   );
 
-  $ps->add_to_page(<<"END_HOR_LINES");
+  if ($self->{grid}) {
+    $ps->add_to_page(<<"END_GRID");
+$self->{gridWidth} setlinewidth
 $E{$gridBottom + $dayHeight} $dayHeight $dayTop\ {
   $gridWidth $leftEdge 3 -1 roll hLine
 } for
-END_HOR_LINES
 
-  $ps->add_to_page(<<"END_VERT_LINES");
 $E{$leftEdge + $dayWidth} $dayWidth $E{$gridRight - $midday}\ {
   $gridHeight exch $gridBottom vLine
 } for
-END_VERT_LINES
+END_GRID
+  } # end if grid
 
   if ($self->{border}) {
     $ps->add_to_page(<<"END_BORDER");
+$self->{borderWidth} setlinewidth
 newpath
 $leftEdge $gridTop moveto
 $gridWidth 0 rlineto
@@ -896,6 +901,12 @@ pairs.
 If false, omit the border around the calendar grid (only internal grid
 lines are drawn).  The default is true.
 
+=item C<border_width>
+
+The width of the border drawn around the calendar grid (assuming
+C<border> is true).  The default is 0.72 points, which is 3 pixels on
+a 300dpi printer.
+
 =item C<condense>
 
 If true, reduce calendars that would span 6 rows down to 5 rows by
@@ -909,6 +920,17 @@ portrait-mode calendars from taking up the entire page (which just
 doesn't look right).  The default is 0, which means there is no
 maximum value.  I recommend 96 for a portrait-mode calendar on US
 letter size paper.
+
+=item C<grid>
+
+If false, omit the internal grid lines in the calendar (only the
+external border is drawn).  The default is true.
+
+=item C<grid_width>
+
+The width of the internal grid lines in the calendar (assuming C<grid>
+is true).  The default is 0.72 points, which is 3 pixels on a 300dpi
+printer.
 
 =item C<mini_calendars>
 
