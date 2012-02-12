@@ -200,7 +200,7 @@ sub new
       top         => $self->{topMar},
       left        => $self->{sideMar},
       right       => $self->{sideMar},
-      title       => PostScript::File->pstr($self->{title}),
+      title       => PostScript::File->quote_text($self->{title}),
       reencode    => 'cp1252',
       strip       => 'all_comments',
       landscape   => $p{landscape},
