@@ -18,15 +18,14 @@ package inc::My_Build;
 #---------------------------------------------------------------------
 
 use strict;
-use File::Spec ();
 use Module::Build ();
 
-use base 'Module::Build';
+our @ISA = 'Module::Build';
 
 #=====================================================================
 # Package Global Variables:
 
-our $VERSION = '1.01';
+our $VERSION = '1.02';
 
 #=====================================================================
 
