@@ -40,7 +40,7 @@ All of these are available on CPAN.
 #=====================================================================
 # Package Global Variables:
 
-our $VERSION = '1.01';
+our $VERSION = '1.02';
 # This file is part of {{$dist}} {{$dist_version}} ({{$date}})
 
 our @phaseName = qw(NewMoon FirstQuarter FullMoon LastQuarter);
