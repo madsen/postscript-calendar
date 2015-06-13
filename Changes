@@ -1,6 +1,7 @@
 Revision history for PostScript::Calendar
 
-1.02   NOT
+1.02   2015-06-13
+	- No functional changes
 	- Release tests moved to xt/
 
 1.01   2012-02-12
